@@ -1,0 +1,46 @@
+{
+    "ubuntu":{
+        "pytorch": {
+            "docker_image": "jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:0.12.0-torch_sdaa0.15.0",
+            "pytorch_sdaa": "http://jfrog.tecorigin.net:80/artifactory/tecobs-ap-torch_sdaa/artifacts/0.15.0/release/0.15.0/14/",
+            "sdaadriver": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/sdaadriver/artifacts/0.15.0/release/0.15.0/75/sdaadriver_0.15.0-1.ubuntu2204_amd64.deb",
+            "sdaart": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/sdaart/artifacts/0.16.0/release/0.16.0/34/sdaart_0.16.0-1.ubuntu2204_amd64.deb",
+            "tccl": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/tccl/artifacts/1.11.0/release/1.11.0/85/tccl_1.11.0-1.ubuntu2204_amd64.deb",
+            "blas": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/tecoblas/artifacts/1.12.0/release/1.12.0/8/tecoblas_1.12.0-1.ubuntu2004_amd64.deb",
+            "dnn": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/tecodnn/artifacts/1.12.0/release/1.12.0/9/tecodnn_1.12.0-1.ubuntu2004_amd64.deb",
+            "tecocc": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/tecodevtools/artifacts/1.1.0/release/1.1.0/51/tecodevtools_1.1.0-1.ubuntu2204_amd64.deb"
+        },
+        "paddle":{
+            "docker_image": "jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/paddle:0.12.0-paddlepaddle_sdaa0.11.0",
+            "paddle_sdaa": "http://jfrog.tecorigin.net:80/artifactory/tecobs-ap-paddle_sdaa/artifacts/0.11.0/release/0.11.0/91/",
+            "sdaadriver": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/sdaadriver/artifacts/0.15.0/release/0.15.0/75/sdaadriver_0.15.0-1.ubuntu2204_amd64.deb",
+            "sdaart": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/sdaart/artifacts/0.16.0/release/0.16.0/34/sdaart_0.16.0-1.ubuntu2204_amd64.deb",
+            "tccl": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/tccl/artifacts/1.11.0/release/1.11.0/85/tccl_1.11.0-1.ubuntu2204_amd64.deb",
+            "blas": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/tecoblas/artifacts/1.12.0/release/1.12.0/8/tecoblas_1.12.0-1.ubuntu2004_amd64.deb",
+            "dnn": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/tecodnn/artifacts/1.12.0/release/1.12.0/9/tecodnn_1.12.0-1.ubuntu2004_amd64.deb",
+            "tecocc": "http://jfrog.tecorigin.net/artifactory/tecobs-deb-ubuntu/2204/tecodevtools/artifacts/1.1.0/release/1.1.0/51/tecodevtools_1.1.0-1.ubuntu2204_amd64.deb"
+        }
+    },
+    "centos":{
+        "pytorch": {
+            "docker_image": "jfrog.tecorigin.net/tecotp-docker/release/centos7/x86_64/pytorch:0.12.0-torch_sdaa0.15.0",
+            "pytorch_sdaa": "http://jfrog.tecorigin.net:80/artifactory/tecobs-ap-torch_sdaa/artifacts/0.15.0/release/0.15.0/14/",
+            "sdaadriver": "http://jfrog.tecorigin.net/artifactory/tecobs-sdaadriver-rpm/artifacts/0.15.0/release/0.15.0/57/sdaadriver-centos7-0.15.0-1.x86_64.rpm",
+            "sdaart": "http://jfrog.tecorigin.net/artifactory/tecobs-sdaart-rpm/artifacts/0.16.0/release/0.16.0/31/sdaart-centos7-0.16.0-1.x86_64.rpm",
+            "tccl": "http://jfrog.tecorigin.net/artifactory/tecobs-tccl-rpm/artifacts/1.11.0/release/1.11.0/63/tccl-centos7-1.11.0-1.x86_64.rpm",
+            "blas": "http://jfrog.tecorigin.net/artifactory/tecobs-tccl-rpm/artifacts/1.11.0/release/1.11.0/63/tccl-centos7-1.11.0-1.x86_64.rpm",
+            "dnn": "http://jfrog.tecorigin.net/artifactory/tecobs-hp-TecoDNN/tecoal/1.12.0/release/1.12.0/67/tecodnn-centos7-1.12.0-1.x86_64.rpm",
+            "tecocc": "http://jfrog.tecorigin.net/artifactory/tecobs-hp-TecoDNN/tecoal/1.12.0/release/1.12.0/67/tecodnn-centos7-1.12.0-1.x86_64.rpm"
+        },
+        "paddle":{
+            "docker_image": "jfrog.tecorigin.net/tecotp-docker/release/centos7/x86_64/paddle:0.12.0-paddlepaddle_sdaa0.11.0",
+            "paddle_sdaa": "jfrog.tecorigin.net/tecotp-docker/release/centos7/x86_64/paddle:0.12.0-paddlepaddle_sdaa0.11.0",
+            "sdaadriver": "http://jfrog.tecorigin.net/artifactory/tecobs-sdaadriver-rpm/artifacts/0.15.0/release/0.15.0/57/sdaadriver-centos7-0.15.0-1.x86_64.rpm",
+            "sdaart": "http://jfrog.tecorigin.net/artifactory/tecobs-sdaart-rpm/artifacts/0.16.0/release/0.16.0/31/sdaart-centos7-0.16.0-1.x86_64.rpm",
+            "tccl": "http://jfrog.tecorigin.net/artifactory/tecobs-tccl-rpm/artifacts/1.11.0/release/1.11.0/63/tccl-centos7-1.11.0-1.x86_64.rpm",
+            "blas": "http://jfrog.tecorigin.net/artifactory/tecobs-tccl-rpm/artifacts/1.11.0/release/1.11.0/63/tccl-centos7-1.11.0-1.x86_64.rpm",
+            "dnn": "http://jfrog.tecorigin.net/artifactory/tecobs-hp-TecoDNN/tecoal/1.12.0/release/1.12.0/67/tecodnn-centos7-1.12.0-1.x86_64.rpm",
+            "tecocc": "http://jfrog.tecorigin.net/artifactory/tecobs-hp-TecoDNN/tecoal/1.12.0/release/1.12.0/67/tecodnn-centos7-1.12.0-1.x86_64.rpm"
+        }
+    }
+}
