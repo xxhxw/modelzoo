@@ -1,4 +1,4 @@
-ARG FROM_IMAGE_NAME=jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/paddle:0.12.0-paddlepaddle_sdaa0.11.0
+ARG FROM_IMAGE_NAME=jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/paddle:1.0.0-paddle_sdaa1.0.0
 FROM ${FROM_IMAGE_NAME}
 
 WORKDIR /workspace/

@@ -1,4 +1,4 @@
-ARG FROM_IMAGE_NAME=jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:0.12.0-torch_sdaa0.15.0
+ARG FROM_IMAGE_NAME=jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:1.0.0-torch_sdaa1.3.0
 FROM ${FROM_IMAGE_NAME}
 
 WORKDIR /workspace/

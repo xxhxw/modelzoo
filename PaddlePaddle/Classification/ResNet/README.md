@@ -27,7 +27,7 @@ DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t paddle_r50
 [SDAA软件栈版本信息](../../../.dependencies.json)
 |软件名|paddle|sdaadriver|sdaart|tccl|dnn|blas|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|版本信息| 0.11.0 |0.15.0|0.16.0|1.11.0|1.12.0| 1.12.0|
+|版本信息|1.0.0|1.0.0|1.0.0|1.14.0|1.15.0|1.15.0|
 
 - 创建ResNet50 PaddlePaddle sdaa docker容器
 
@@ -230,12 +230,3 @@ python3 python/predict_cls.py -c configs/inference_cls_sdaa.yaml
 ```
 ILSVRC2012_val_00030010.jpeg:   class id(s): [80, 23, 93, 136, 100], score(s): [0.74, 0.09, 0.02, 0.02, 0.01], label_name(s): ['black grouse', 'vulture', 'hornbill', 'European gallinule, Porphyrio porphyrio', 'black swan, Cygnus atratus']
 ```
-
-
-## 版本说明
-
-2023/09/19： 首次发布
-
-
-## FAQ
-暂无已知问题

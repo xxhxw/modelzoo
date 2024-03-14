@@ -1,5 +1,5 @@
 # BERT finetune
- 
+
 BERT（Bidirectional Encoder Representations from Transformers）是一种预训练的语言模型，它在大规模的无监督数据上进行了训练，学习到了丰富的语言表征，拥有强大的自然语言理解能力（Natural Language Understanding, NLU）。对于NLP子任务，可使用标注数据集在BERT预训练模型的基础上进行有监督训练，使BERT模型进一步理解任务，从而对子任务有更好的效果。
 
 ## 目录
@@ -42,8 +42,17 @@ git clone http://10.10.30.109/tecoap/modelzoo.git
 
 本项目使用Nvidia提供的BERT-base-uncased预训练权重进行训练。可前往[NVIDIA-NGC](https://catalog.ngc.nvidia.com/orgs/nvidia/models/bert_pyt_ckpt_base_pretraining_amp_lamb/files)下载。
 
+下载指令
+```
+wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/bert_pyt_ckpt_base_pretraining_amp_lamb/19.09.0/files?redirect=true&path=bert_base.pt' -O bert_base.pt
+```
+
 中文BERT权重可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。
 
+下载指令
+```
+git clone https://www.modelscope.cn/dienstag/chinese-bert-wwm.git
+```
 ### 1.3 版本控制
 
 #### 1.3.1 docker环境
@@ -58,7 +67,7 @@ DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t  torch_bert_base
 [SDAA软件栈版本信息](../../../.dependencies.json)
 |软件名|pytorch|sdaadriver|sdaart|tccl|dnn|blas|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|版本信息| 0.15.0 |0.15.0|0.16.0|1.11.0|1.12.0| 1.12.0|
+|版本信息|1.3.0|1.0.0|1.0.0|1.14.0|1.15.0|1.15.0|
 
 
 创建BERT-base PyTorch sdaa docker容器：
@@ -277,7 +286,7 @@ mkdir thucnews_dataset && unzip THUCNews.zip -d thucnews_dataset
 
 cd <modelzoo-root>/PyTorch/NLP/BERT/data
 # 传入参数<path/to/thucnews_dataset>与<path/to/output_dir>，<path/to/thucnews_dataset>为数据集解压路径，<path/to/processed_thucnews>为处理完后的数据保存路径
-python process_thucnews.py <path/to/thucnews_dataset> <path/to/processed_thucnews> 
+python process_thucnews.py <path/to/thucnews_dataset> <path/to/processed_thucnews>
 
 # 执行完成后processed_thucnews中会生成train.tsv dev.tsv两个文件
 ```
