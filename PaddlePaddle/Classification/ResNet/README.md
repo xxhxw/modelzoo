@@ -128,32 +128,14 @@ cd /PaddlePaddle/Classification/ResNet/run_scripts
     ```
     - 出现`experiment ended` 则表示程序正常运行完毕
 
-- 单机单卡（4核）组训练
+- 单机单卡训练
     ```
     python run_paddle_resnet.py --model_name resnet50 --nproc_per_node 4 --bs 64 --lr 0.256 --device sdaa  --epoch 50 --dataset_path /imagenet  --grad_scale True --autocast True
     ```
-    
-- 单机四卡（4*4核）组训练
-    ```
-    python run_paddle_resnet.py --model_name resnet50  --nproc_per_node 16 --bs 64 --lr 1.024 --device sdaa  --epoch 50 --dataset_path /imagenet  --grad_scale True --autocast True
-
-    ```
-
-- 单机八卡（8*4核）组训练
+- 单机八卡训练
     ```
     python run_paddle_resnet.py --model_name resnet50  --nproc_per_node 32 --bs 64 --lr 2.048 --device sdaa  --epoch 90 --dataset_path /imagenet  --grad_scale True --autocast True
 
-    ```
-
-- 两机八卡（8*4核）组训练
-    ```
-    # node0
-    python run_paddle_resnet.py --model_name resnet50 --master_addr ip_address1,ip_address2 --master_port 29500 --nproc_per_node 16 --bs 64 --lr 2.048 --device sdaa  --epoch 50 --dataset_path /imagenet  --grad_scale True --autocast True --nnode 2
-
-    # node1
-    python run_paddle_resnet.py --model_name resnet50  --master_addr ip_address1,ip_address2 --master_port 29500 --nproc_per_node 16 --bs 64 --lr 2.048 --device sdaa  --epoch 50 --dataset_path /imagenet  --grad_scale True --autocast True --nnode 2
-
-    #请将上述命令中的ip_address1, ip_address2 修改为所使用节点的ip地址，其中ip_address1为主节点
     ```
 
 #### 3.2.模型训练脚本参数说明如下：
@@ -230,3 +212,12 @@ python3 python/predict_cls.py -c configs/inference_cls_sdaa.yaml
 ```
 ILSVRC2012_val_00030010.jpeg:   class id(s): [80, 23, 93, 136, 100], score(s): [0.74, 0.09, 0.02, 0.02, 0.01], label_name(s): ['black grouse', 'vulture', 'hornbill', 'European gallinule, Porphyrio porphyrio', 'black swan, Cygnus atratus']
 ```
+
+
+## 版本说明
+
+2023/09/19： 首次发布
+
+
+## FAQ
+暂无已知问题

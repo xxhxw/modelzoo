@@ -121,7 +121,7 @@ cd <modelzoo-root>/PyTorch/NLP/BERT
 python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384
 ```
 
-- 单机单卡（4核）训练
+- 单机单卡训练
 
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
@@ -129,7 +129,7 @@ cd <modelzoo-root>/PyTorch/NLP/BERT
 python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
 
-- 单机八卡（8*4核）训练
+- 单机八卡训练
 
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
@@ -209,9 +209,9 @@ CNN/DM数据集仅支持使用--step参数控制训练数据量
 
 #### 2.2.4 训练结果
 
-| 芯片 |卡 |软件栈版本 |频率 | steps | 混合精度 |Batch size|max seq len| 吞吐量| ROUGE-1| ROUGE-2|ROUGE-L|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|teco 0.12.0|2.5G| 20000 |是|16|512| - | 42.94 | 20.07 |39.40|
+| 芯片 |卡 |频率 | steps | 混合精度 |Batch size|max seq len| 吞吐量| ROUGE-1| ROUGE-2|ROUGE-L|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1|2.5G| 20000 |是|16|512| - | 42.94 | 20.07 |39.40|
 
 
 <!-- |CUDA|1|cuda 11.7|-| 20000 | 否 |16|512| - | 43.14 | 20.23 |39.59| -->
@@ -265,9 +265,9 @@ python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc
 
 #### 2.3.3 训练结果
 
-| 芯片 |卡 |软件栈版本 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|teco 0.12.0|2.5G| 4 |是|64|128| - | 84.42% |
+| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1|2.5G| 4 |是|64|128| - | 84.42% |
 
 <!-- |A100|1|cuda 11.7|-| 4 |是|16|128| - | 84.26% | -->
 
