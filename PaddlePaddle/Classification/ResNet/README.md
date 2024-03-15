@@ -13,7 +13,7 @@ ResNet-50是一种深度卷积神经网络模型，采用了残差网络（ResNe
 #### 1.1.拉取代码仓
 
 ```
-git clone http://10.10.30.109/tecoap/modelzoo.git
+git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 ```
 
 #### 1.2.Docker 环境准备 
@@ -163,61 +163,8 @@ grad_scaler| 使用grad_scale | --grad_scale True
 
 ### 4、训练结果
 
-| 芯片 |卡 |频率 | 模型 |  混合精度 |Batch size|Shape| 吞吐量| AccTop1|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|2.0G| ResNet18 |是|256|224*224| 2020 img/s| 70.36% |
-|SDAA|1|2.0G| ResNet50 |是|256|224*224| 888 img/s| 76.09% |
-|SDAA|1|2.0G| ResNet101 |是|256|224*224| 536 img/s| 78.14% |
-
-
-### 5、基于PaddleInference推理
-#### 5.1.基于训练的模型导出推理的模型权重
-(1) 依赖安装
-```
-cd modelzoo/PaddlePaddle/Classification/ResNet
-pip install -r requirements.txt
-pip install .
-```
-推理模型导出所需要的训练文件如下：
-```
-$ tree output/ResNet50/
-ResNet50/
-├── best_model.pdopt
-├── best_model.pdparams
-├── best_model.pdstates
-```
-(2) 从训练模型导出推理模型，运行如下命令：
-参数名 | 解释
------------------|-----------------|
--c|  指定训练时的配置文件 |
--o |   Global.pretrained_model 指定需要转换的训练模型
--o |     Global.save_inference_dir指定导出推理模型的保存路径
-```
-python tools/export_model.py \
-    -c tools/ResNet50_amp_O1.yaml \
-    -o Global.pretrained_model=output/ResNet50/best_model \
-    -o Global.save_inference_dir=tools/infer_save
-```
-(3) 执行结果如下：
-```
-ppcls INFO: Export succeeded! The inference model exported has been saved in "tools/infer_save".
-```
-#### 5.2.基于导出的模型执行推理脚本
-```
-cd deploy
-python3 python/predict_cls.py -c configs/inference_cls_sdaa.yaml
-```
-#### 5.3.推理结果
-推理图片为‘黑琴鸡’，推理结果表示为‘黑琴鸡’的概率为0.74，符合预期
-```
-ILSVRC2012_val_00030010.jpeg:   class id(s): [80, 23, 93, 136, 100], score(s): [0.74, 0.09, 0.02, 0.02, 0.01], label_name(s): ['black grouse', 'vulture', 'hornbill', 'European gallinule, Porphyrio porphyrio', 'black swan, Cygnus atratus']
-```
-
-
-## 版本说明
-
-2023/09/19： 首次发布
-
-
-## FAQ
-暂无已知问题
+| 芯片 |卡  | 模型 |  混合精度 |Batch size|Shape| 吞吐量| AccTop1|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1| ResNet18 |是|256|224*224| 2020 img/s| 70.36% |
+|SDAA|1| ResNet50 |是|256|224*224| 888 img/s| 76.09% |
+|SDAA|1| ResNet101 |是|256|224*224| 536 img/s| 78.14% |

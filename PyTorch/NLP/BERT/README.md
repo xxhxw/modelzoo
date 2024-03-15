@@ -35,7 +35,7 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 ### 1.1 代码拉取
 
 ``` bash
-git clone http://10.10.30.109/tecoegc/modelzoo.git
+git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 ```
 
 ### 1.2 预训练权重
@@ -145,10 +145,10 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 
 #### 2.1.3 训练结果
 
-| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量| Acc| extra_match|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|2.5G| 3|是|16|384| - | 89.01% | 82.10 |
-|SDAA|8|2.5G| 3|是|64|384| - | 88.61% | 81.47 |
+| 芯片 |卡 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量| Acc| extra_match|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1| 3|是|16|384| - | 89.01% | 82.10 |
+|SDAA|8| 3|是|64|384| - | 88.61% | 81.47 |
 
 <!-- |V100|1|cuda 11.7 | - |3 |是(apex)|4|384| - | 88.68% | - |
 |V100|8|cuda 11.7 | - |3 |是(apex)|32|384| - | 87.42% | - | -->
@@ -209,9 +209,9 @@ CNN/DM数据集仅支持使用--step参数控制训练数据量
 
 #### 2.2.4 训练结果
 
-| 芯片 |卡 |频率 | steps | 混合精度 |Batch size|max seq len| 吞吐量| ROUGE-1| ROUGE-2|ROUGE-L|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|2.5G| 20000 |是|16|512| - | 42.94 | 20.07 |39.40|
+| 芯片 |卡 | steps | 混合精度 |Batch size|max seq len| 吞吐量| ROUGE-1| ROUGE-2|ROUGE-L|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1| 20000 |是|16|512| - | 42.94 | 20.07 |39.40|
 
 
 <!-- |CUDA|1|cuda 11.7|-| 20000 | 否 |16|512| - | 43.14 | 20.23 |39.59| -->
@@ -265,9 +265,9 @@ python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc
 
 #### 2.3.3 训练结果
 
-| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|2.5G| 4 |是|64|128| - | 84.42% |
+| 芯片 |卡 |Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1| 4 |是|64|128| - | 84.42% |
 
 <!-- |A100|1|cuda 11.7|-| 4 |是|16|128| - | 84.26% | -->
 
@@ -319,9 +319,9 @@ python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --np
 
 #### 2.4.3 训练结果
 
-| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|2.5G| 4 |是|64|128| - | 95.43% |
+| 芯片 |卡 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1| 4 |是|64|128| - | 95.43% |
 
 <!-- |A100|1|cuda 11.7|-| 4 |是|16|128| - | 95.71% | -->
 
