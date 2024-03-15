@@ -35,24 +35,23 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 ### 1.1 代码拉取
 
 ``` bash
-git clone http://10.10.30.109/tecoap/modelzoo.git
+git clone http://10.10.30.109/tecoegc/modelzoo.git
 ```
 
 ### 1.2 预训练权重
 
-本项目使用Nvidia提供的BERT-base-uncased预训练权重进行训练。可前往[NVIDIA-NGC](https://catalog.ngc.nvidia.com/orgs/nvidia/models/bert_pyt_ckpt_base_pretraining_amp_lamb/files)下载。
+对于英文任务，本项目使用NVIDIA提供的BERT-base-uncased预训练权重进行微调。可前往[NVIDIA-NGC](https://catalog.ngc.nvidia.com/orgs/nvidia/models/bert_pyt_ckpt_base_pretraining_amp_lamb/files)下载。该权重可用于SQuAD v1.1/CNN&DM/IMDb三个数据集的微调任务。
 
-下载指令
-```
+``` bash
 wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/bert_pyt_ckpt_base_pretraining_amp_lamb/19.09.0/files?redirect=true&path=bert_base.pt' -O bert_base.pt
 ```
 
-中文BERT权重可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。
+对于中文任务，则使用中文BERT的预训练权重，可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。该权重可用于THUCNews数据集的微调任务。
 
-下载指令
-```
+``` bash
 git clone https://www.modelscope.cn/dienstag/chinese-bert-wwm.git
 ```
+
 ### 1.3 版本控制
 
 #### 1.3.1 docker环境
@@ -72,6 +71,7 @@ DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t  torch_bert_base
 
 创建BERT-base PyTorch sdaa docker容器：
 ``` bash
+# 这里注意如果需要使用物理机的数据集和权重文件，需要通过-v参数挂载进docker
 docker run  -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <path to checkpoint>:/workspace/checkpoint --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=128g torch_bert_base /bin/bash
 ```
 
@@ -118,7 +118,7 @@ sh squad_download.sh
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384
 ```
 
 - 单机单卡训练
@@ -126,7 +126,7 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
 
 - 单机八卡训练
@@ -134,7 +134,7 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 32 --bs 2 --lr 6e-5 --device sdaa --epoch 3 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 32 --bs 2 --lr 6e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
 
 ##### 参数说明
@@ -145,10 +145,10 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 
 #### 2.1.3 训练结果
 
-| 芯片 |卡 |软件栈版本 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量| Acc| extra_match|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|teco 0.12.0|2.5G| 3|是|16|384| - | 89.01% | 82.10 |
-|SDAA|8|teco 0.12.0|2.5G| 3|是|64|384| - | 88.61% | 81.47 |
+| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量| Acc| extra_match|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1|2.5G| 3|是|16|384| - | 89.01% | 82.10 |
+|SDAA|8|2.5G| 3|是|64|384| - | 88.61% | 81.47 |
 
 <!-- |V100|1|cuda 11.7 | - |3 |是(apex)|4|384| - | 88.68% | - |
 |V100|8|cuda 11.7 | - |3 |是(apex)|32|384| - | 87.42% | - | -->
@@ -228,7 +228,7 @@ ACL官方提供了[原始数据集](https://ai.stanford.edu/~amaas/data/sentimen
 wget https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
 
 # 下载完成后进行解压
-mkdir imdb_dataset && tar -xvf aclImdb_v1.tar -C imdb_dataset
+mkdir imdb_dataset && tar -xvf aclImdb_v1.tar.gz -C imdb_dataset
 
 cd <modelzoo-root>/PyTorch/NLP/BERT/data
 # 修改imdb_dir与output_dir，imdb_dir为数据集解压路径，output_dir为处理完后的数据保存路径
@@ -277,16 +277,18 @@ python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc
 
 THUCNews是一个多分类的中文新闻数据集，包括 财经, 彩票, 房产, 股票, 家居, 教育, 科技, 社会, 时尚, 时政, 体育, 星座, 游戏, 娱乐 14种新闻。默认使用混合精度训练，可以用两种方法获取训练使用的数据集。
 
-清华官方提供了[THUCNews数据集](http://thuctc.thunlp.org/)下载。
+清华官方提供了[THUCNews数据集](http://thuctc.thunlp.org/)下载。也可通过下面的命令下载
 
 ``` bash
+# 数据集下载
+wget https://thunlp.oss-cn-qingdao.aliyuncs.com/THUCNews.zip
 
 # 下载完成后进行解压
-mkdir thucnews_dataset && unzip THUCNews.zip -d thucnews_dataset
+unzip THUCNews.zip
 
 cd <modelzoo-root>/PyTorch/NLP/BERT/data
-# 传入参数<path/to/thucnews_dataset>与<path/to/output_dir>，<path/to/thucnews_dataset>为数据集解压路径，<path/to/processed_thucnews>为处理完后的数据保存路径
-python process_thucnews.py <path/to/thucnews_dataset> <path/to/processed_thucnews>
+# 传入参数<path/to/thucnews_dataset>与<path/to/output_dir>，<path/to/thucnews_dataset>为数据集解压路径，<path/to/output_dir>为处理完后的数据保存路径
+python process_thucnews.py <path/to/THUCNews> <path/to/output_dir>
 
 # 执行完成后processed_thucnews中会生成train.tsv dev.tsv两个文件
 ```
@@ -317,9 +319,9 @@ python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --np
 
 #### 2.4.3 训练结果
 
-| 芯片 |卡 |软件栈版本 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|SDAA|1|teco 0.12.0|2.5G| 4 |是|64|128| - | 95.43% |
+| 芯片 |卡 |频率 | Epochs | 混合精度 |Batch size|max seq len| 吞吐量|acc|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|SDAA|1|2.5G| 4 |是|64|128| - | 95.43% |
 
 <!-- |A100|1|cuda 11.7|-| 4 |是|16|128| - | 95.71% | -->
 

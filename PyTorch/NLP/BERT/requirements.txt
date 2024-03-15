@@ -9,6 +9,7 @@ ipdb
 #Data processing
 h5py
 nltk
+pandas
 scikit-learn
 #Others
 # onnxruntime
