@@ -698,14 +698,17 @@ def main(args):
         nb_tr_examples = 0
         model.train()
         tic_train = time.perf_counter()
-        for _ in trange(int(args.num_train_epochs), desc="Epoch"):
+        for epoch in trange(int(args.num_train_epochs), desc="Epoch"):
             tr_loss, nb_tr_steps = 0, 0
             for step, batch in enumerate(
                     tqdm(train_dataloader, desc="Iteration")):
                 if args.max_steps > 0 and global_step > args.max_steps:
                     break
+                before_to_device = time.time()
                 batch = tuple(t.to(device) for t in batch)
+                data_cp_time = time.time() - before_to_device
                 input_ids, input_mask, segment_ids, label_ids = batch
+                before_forward = time.time()
                 if args.device == "sdaa" and args.fp16:
                     with torch_sdaa.amp.autocast():
                         logits = model(input_ids, segment_ids, input_mask)
@@ -715,11 +718,13 @@ def main(args):
                     logits.view(-1, num_labels),
                     label_ids.view(-1),
                 )
+                forward_time = time.time() - before_forward
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
 
+                before_backward = time.time()
                 if args.fp16:
                     if args.device == "sdaa":
                         grad_scaler.scale(loss).backward()
@@ -729,9 +734,12 @@ def main(args):
                 else:
                     loss.backward()
 
+                backward_time = time.time() - before_backward
+
                 tr_loss += loss.item()
                 nb_tr_examples += input_ids.size(0)
                 nb_tr_steps += 1
+                before_optim = time.time()
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     if args.device == "sdaa" and args.fp16:
                         scheduler.step()
@@ -745,6 +753,24 @@ def main(args):
                         optimizer.step()
                     optimizer.zero_grad()
                     global_step += 1
+                optim_time = time.time() - before_optim
+                batch_time = time.time() - before_to_device
+                json_logger.log(
+                    step = (epoch, global_step),
+                    data = {
+                            "rank":args.local_rank,
+                            "train.loss":loss,
+                            "train.ips":args.train_batch_size/batch_time,
+                            "data.shape":input_ids.shape,
+                            "train.lr":scheduler.get_lr()[0],
+                            "train.data_time":data_cp_time,
+                            "train.compute_time": forward_time+backward_time+optim_time,
+                            "train.fp_time":forward_time,
+                            "train.bp_time":backward_time,
+                            "train.grad_time":optim_time,
+                            },
+                    verbosity=Verbosity.DEFAULT,
+                )
         latency_train = time.perf_counter() - tic_train
         tr_loss = tr_loss / nb_tr_steps
         results.update({
@@ -846,10 +872,10 @@ def main(args):
         # ]
         # eval_latencies = list(sorted(eval_latencies))
 
-        def infer_latency_sli(threshold):
-            index = int(len(eval_latencies) * threshold) - 1
-            index = min(max(index, 0), len(eval_latencies) - 1)
-            return eval_latencies[index]
+        # def infer_latency_sli(threshold):
+        #     index = int(len(eval_latencies) * threshold) - 1
+        #     index = min(max(index, 0), len(eval_latencies) - 1)
+        #     return eval_latencies[index]
 
         # eval_throughput = (args.eval_batch_size /
         #                    (np.mean(eval_latencies) / 1000))
@@ -903,10 +929,10 @@ def main(args):
                 step=tuple(),
                 data={key: convert(results[results_key])},
             )
-            json_logger.log(
-                step=tuple(),
-                data={key: convert(results[results_key])},
-            )
+            # json_logger.log(
+            #     step=tuple(),
+            #     data={key: convert(results[results_key])},
+            # )
     dllogger.flush()
     return results
 

@@ -62,7 +62,7 @@ if __name__ == '__main__':
         raise Exception("Recent task do not support nnode > 1. Set --nnode=1 !")
     
     if nnode == 1 and nproc_per_node>1:
-        cmd = f'torchrun --nproc_per_node {nproc_per_node} {project_path}/pipeline/run_squad.py \
+        cmd = f'torchrun --nproc_per_node {nproc_per_node} --master_port {master_port} {project_path}/pipeline/run_squad.py \
             --bert_model {model_name} \
             --output_dir ./log/squad_v1.1 \
             --init_checkpoint {ckpt_path} \

@@ -498,6 +498,7 @@ def main():
                 mask = batch.mask
                 mask_cls = batch.mask_cls
 
+                before_forward = time.time()
                 if args.device == "sdaa" and args.fp16:
                     with torch_sdaa.amp.autocast():
                         sent_scores, mask_cls = model(src, segs, clss, mask, mask_cls)
@@ -507,10 +508,14 @@ def main():
                 loss_fct = torch.nn.BCELoss(reduction='none')
                 loss = loss_fct(sent_scores, labels.float())
                 loss = (loss*mask_cls.float()).sum()
+
+                forward_time = time.time() - before_forward
                 
                 loss_to_backward = loss/loss.numel()
                 if args.gradient_accumulation_steps > 1:
                     loss = loss_to_backward / args.gradient_accumulation_steps
+                
+                before_backward = time.time()
                 if args.fp16:
                     if args.device == "sdaa":
                         grad_scaler.scale(loss_to_backward).backward()
@@ -520,6 +525,9 @@ def main():
                 else:
                     loss_to_backward.backward()
 
+                backward_time = time.time() - before_backward
+
+                before_optim = time.time()
                 # gradient clipping
                 if args.device == "cuda":
                     gradClipper.step(amp.master_params(optimizer))
@@ -537,6 +545,7 @@ def main():
                         optimizer.step()
                     optimizer.zero_grad()
                     global_step += 1
+                optim_time = time.time() - before_optim
                 # if is_main_process():
                 #     if args.fp16:
                 #         print(f"{grad_scaler._scale.item()=}")
@@ -553,10 +562,10 @@ def main():
                             "data.shape":src.shape,
                             "train.lr":optimizer.learning_rate,
                             "train.data_time":-1,
-                            "train.compute_time":-1,
-                            "train.fp_time":-1,
-                            "train.bp_time":-1,
-                            "train.grad_time":-1,
+                            "train.compute_time": forward_time+backward_time+optim_time,
+                            "train.fp_time":forward_time,
+                            "train.bp_time":backward_time,
+                            "train.grad_time":optim_time,
                             },
                     verbosity=Verbosity.DEFAULT,
                 )

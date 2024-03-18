@@ -1142,6 +1142,8 @@ def main():
                 if n_gpu == 1:
                     batch = tuple(t.to(device) for t in batch)  # multi-gpu does scattering it-self
                 input_ids, input_mask, segment_ids, start_positions, end_positions = batch
+                data_cp_time = time.time() - before_to_device
+                before_forward = time.time()
                 if args.device == "sdaa" and args.fp16:
                     with torch_sdaa.amp.autocast():
                         start_logits, end_logits = model(input_ids, segment_ids, input_mask)
@@ -1163,10 +1165,12 @@ def main():
                 start_loss = loss_fct(start_logits, start_positions)
                 end_loss = loss_fct(end_logits, end_positions)
                 loss = (start_loss + end_loss) / 2
+                forward_time = time.time() - before_forward
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
+                before_backward = time.time()
                 if args.fp16:
                     if args.device == "sdaa":
                         grad_scaler.scale(loss).backward()
@@ -1176,6 +1180,9 @@ def main():
                 else:
                     loss.backward()
 
+                backward_time = time.time() - before_backward
+
+                before_optim = time.time()
                 # gradient clipping
                 if args.device == "cuda":
                     gradClipper.step(amp.master_params(optimizer))
@@ -1198,6 +1205,7 @@ def main():
                 #         print(f"{grad_scaler._scale.item()=}")
                 #     print("optimizer end")
                 
+                optim_time = time.time() - before_optim
                 batch_time=time.time() - before_to_device
                 json_logger.log(
                     step = (epoch, global_step),
@@ -1207,11 +1215,11 @@ def main():
                             "train.ips":args.train_batch_size/batch_time,
                             "data.shape":input_ids.shape,
                             "train.lr":scheduler.get_lr()[0],
-                            "train.data_time":-1,
-                            "train.compute_time":-1,
-                            "train.fp_time":-1,
-                            "train.bp_time":-1,
-                            "train.grad_time":-1,
+                            "train.data_time": data_cp_time,
+                            "train.compute_time": forward_time+backward_time+optim_time,
+                            "train.fp_time":forward_time,
+                            "train.bp_time":backward_time,
+                            "train.grad_time":optim_time,
                             },
                     verbosity=Verbosity.DEFAULT,
                 )

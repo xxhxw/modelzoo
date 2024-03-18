@@ -49,7 +49,12 @@ wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/bert
 对于中文任务，则使用中文BERT的预训练权重，可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。该权重可用于THUCNews数据集的微调任务。
 
 ``` bash
-git clone https://www.modelscope.cn/dienstag/chinese-bert-wwm.git
+cd <modelzoo-root>/PyTorch/NLP/BERT
+
+pip install modelscope
+
+# 下载完成后默认保存至~/.cache/modelscope/hub/dienstag/chinese-bert-wwm/
+python data/download_bert_ckpt_cn.py
 ```
 
 ### 1.3 版本控制
@@ -174,8 +179,6 @@ cd rouge/tools/ROUGE-1.5.5/data
 rm WordNet-2.0.exc.db
 ./WordNet-2.0-Exceptions/buildExeptionDB.pl ./WordNet-2.0-Exceptions ./smart_common_words.txt ./WordNet-2.0.exc.db
 
-# 若该命令执行成功则表示rouge配置成功，后续可正常计算rouge指标
-python -m pyrouge.test
 ```
 
 #### 2.2.3 训练及验证
@@ -231,9 +234,8 @@ wget https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
 mkdir imdb_dataset && tar -xvf aclImdb_v1.tar.gz -C imdb_dataset
 
 cd <modelzoo-root>/PyTorch/NLP/BERT/data
-# 修改imdb_dir与output_dir，imdb_dir为数据集解压路径，output_dir为处理完后的数据保存路径
-# 传入参数<path/to/imdb_dataset>与<path/to/processed_imdb>，<path/to/imdb_dataset>为数据集解压路径，<path/to/processed_imdb>为处理完后的数据保存路径
-python process_imdb.py <path/to/imdb_dataset> <path/to/processed_imdb>
+# 传入参数<path/to/imdb_dataset/aclImdb>与<path/to/processed_imdb>，<path/to/imdb_dataset/aclImdb>为数据集解压路径，<path/to/processed_imdb>为处理完后的数据保存路径
+python process_imdb.py <path/to/imdb_dataset/aclImdb> <path/to/processed_imdb>
 
 # 执行完成后processed_imdb中会生成train.tsv dev.tsv两个文件
 ```

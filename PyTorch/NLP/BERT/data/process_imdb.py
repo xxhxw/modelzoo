@@ -86,7 +86,7 @@ folder = os.path.exists(path)
 if not folder:
     os.makedirs(path)
 
-def save_process(samples, labels, type):
+def save_process(output_dir, samples, labels, type):
     datasets, labels = samples, labels
     sentences = []
     punc = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~\n。！，]'
@@ -103,12 +103,8 @@ def save_process(samples, labels, type):
     elif type == 2:
         name = "dev"
     df = pd.DataFrame({'sentence': sentences, 'label': labels})
-    df.to_csv(output_dir + name + ".tsv", index=False, sep='\t')
+    df.to_csv(os.path.join(output_dir, f"{name}.tsv"), index=False, sep='\t')
 
-path = output_dir
-folder = os.path.exists(path)
-if not folder:
-    os.makedirs(path)
 
-save_process(train_samples, train_labels, 0)
-save_process(test_samples, test_labels, 2)
+save_process(output_dir, train_samples, train_labels, 0)
+save_process(output_dir, test_samples, test_labels, 2)

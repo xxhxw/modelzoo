@@ -114,7 +114,12 @@ dev_samples = x[TRAINSET_SIZE:TRAINSET_SIZE+DEVSET_SIZE]
 dev_labels = y[TRAINSET_SIZE:TRAINSET_SIZE+DEVSET_SIZE]
 print(len(dev_labels))
 
-def save_process(samples, labels, type):
+path = output_dir
+folder = os.path.exists(path)
+if not folder:
+    os.makedirs(path)
+
+def save_process(output_dir, samples, labels, type):
     datasets, labels = samples, labels
     sentences = []
     punc = '[’!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~\n。！，]'
@@ -131,12 +136,7 @@ def save_process(samples, labels, type):
     if type == 1:
         name = "dev"
     df = pd.DataFrame({'sentence': sentences, 'label': labels})
-    df.to_csv(output_dir + name + ".tsv", index=False, sep='\t') # 修改为您的数据集存放路径
+    df.to_csv(os.path.join(output_dir, f"{name}.tsv"), index=False, sep='\t') # 修改为您的数据集存放路径
 
-path = output_dir
-folder = os.path.exists(path)
-if not folder:
-    os.makedirs(path)
-
-save_process(train_samples, train_labels, 0)
-save_process(dev_samples, dev_labels, 1)
+save_process(output_dir, train_samples, train_labels, 0)
+save_process(output_dir, dev_samples, dev_labels, 1)
