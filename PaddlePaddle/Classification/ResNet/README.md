@@ -61,11 +61,6 @@ ResNet50运行在ImageNet 1k上，这是一个来自ILSVRC挑战赛的广受欢�
 2.1.1. 从公开网站中获取数据集下载
 https://image-net.org/download-images
 
-2.1.2. 从共享存储中获取
-从应用平台部的共享存储上获取已经下载, 解压并处理好的ImageNet数据集
-```
-cp -r /mnt/dataset/imagenet ~
-```
 #### 2.2. 解压数据集
 
     - 解压训练数据集
