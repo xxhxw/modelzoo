@@ -10,14 +10,14 @@ ResNet-50是一种深度卷积神经网络模型，采用了残差网络（ResNe
 
 ### 1、环境准备
 
-#### 1.1.拉取代码仓
+#### 1.1 拉取代码仓
 
 ```
 git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 ```
 
-#### 1.2.Docker 环境准备 
-##### 1.2.1创建Docker环境
+#### 1.2 Docker 环境准备 
+##### 1.2.1 创建Docker环境
 - 进入Dockerfile所在目录，运行以下命令
 ```
 cd <modelzoo-dir>/PaddlePaddle/Classification/ResNet
@@ -47,21 +47,15 @@ cd /workspace/Classification/ResNet/run_scripts
 conda activate paddle_env
 ```
 
-#### 1.3. Host 环境准备
-```
-  cd /PaddlePaddle/Classification/ResNet
-  pip install -r requirements.txt
-```
-
 ### 2、数据集准备
-#### 2.1. 获取数据集
+#### 2.1 获取数据集
 
 ResNet50运行在ImageNet 1k上，这是一个来自ILSVRC挑战赛的广受欢迎的图像分类数据集。要使用混合精度或FP32精度训练您的模型，请根据以下步骤获取并处理数据集：
 
 2.1.1. 从公开网站中获取数据集下载
 https://image-net.org/download-images
 
-#### 2.2. 解压数据集
+#### 2.2 解压数据集
 
     - 解压训练数据集
     ```
@@ -75,7 +69,7 @@ https://image-net.org/download-images
     mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
     wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
     ```
-#### 2.3. 在本文档中，包含`train/`和`val/`目录被称为`path to imagenet`，数据集目录结构参考如下所示:
+#### 2.3 在本文档中，包含`train/`和`val/`目录被称为`path to imagenet`，数据集目录结构参考如下所示:
 ```
    ├── ImageNet2012
          ├──train
@@ -108,12 +102,8 @@ https://image-net.org/download-images
 ```
 # Docker环境
 cd /workspace/Classification/ResNet/run_scripts
-
-# Host环境
-cd /PaddlePaddle/Classification/ResNet/run_scripts
-
 ```
-#### 3.1.该模型支持单机单卡、单机四卡、单机八卡、两机八卡
+#### 3.1 该模型支持单机单卡、单机四卡、单机八卡、两机八卡
 
 - Demo测试正确性
 
@@ -133,7 +123,7 @@ cd /PaddlePaddle/Classification/ResNet/run_scripts
 
     ```
 
-#### 3.2.模型训练脚本参数说明如下：
+#### 3.2 模型训练脚本参数说明如下：
 
 参数名 | 解释 | 样例
 -----------------|-----------------|-----------------

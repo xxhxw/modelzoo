@@ -6,10 +6,8 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 <!-- toc -->
 - [环境搭建](#1-环境搭建)
     - [代码拉取](#11-代码拉取)
-    - [预训练权重](#12-预训练权重)
-    - [版本控制](#13-版本控制)
-        - [docker环境](#131-docker环境)
-        - [物理机环境](#132-物理机环境)
+    - [docker环境构建](#12-docker环境构建)
+    - [预训练权重](#13-预训练权重)
 - [NLP任务支持](#2-nlp任务支持)
     - [问答任务-使用SQuAD v1.1数据集](#21-问答任务-使用squad-v11数据集)
         - [数据集获取](#211-数据集获取)
@@ -38,29 +36,9 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 ```
 
-### 1.2 预训练权重
+### 1.2 docker环境构建
 
-对于英文任务，本项目使用NVIDIA提供的BERT-base-uncased预训练权重进行微调。可前往[NVIDIA-NGC](https://catalog.ngc.nvidia.com/orgs/nvidia/models/bert_pyt_ckpt_base_pretraining_amp_lamb/files)下载。该权重可用于SQuAD v1.1/CNN&DM/IMDb三个数据集的微调任务。
-
-``` bash
-wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/bert_pyt_ckpt_base_pretraining_amp_lamb/19.09.0/files?redirect=true&path=bert_base.pt' -O bert_base.pt
-```
-
-对于中文任务，则使用中文BERT的预训练权重，可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。该权重可用于THUCNews数据集的微调任务。
-
-``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
-
-pip install modelscope
-
-# 下载完成后默认保存至~/.cache/modelscope/hub/dienstag/chinese-bert-wwm/
-python data/download_bert_ckpt_cn.py
-```
-
-### 1.3 版本控制
-
-#### 1.3.1 docker环境
-- 进入Dockerfile所在目录，运行以下命令
+- 进入BERT项目目录，运行以下命令
 
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
@@ -77,29 +55,41 @@ DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t  torch_bert_base
 创建BERT-base PyTorch sdaa docker容器：
 ``` bash
 # 这里注意如果需要使用物理机的数据集和权重文件，需要通过-v参数挂载进docker
-docker run  -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <path to checkpoint>:/workspace/checkpoint --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=128g torch_bert_base /bin/bash
+# 后续流程中也会说明如何在docker容器内下载权重和数据集
+docker run  -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <path to checkpoint>:/workspace/checkpoint --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=32g torch_bert_base /bin/bash
 ```
 
 - 参数介绍详见[Docker configuration](./docs/Docker_configuration.md)
 
 进入docker容器
-```
+``` bash
 docker exec -it bert_base_pt /bin/bash
-cd /workspace/NLP/BERT/run_scripts
+cd /workspace/NLP/BERT
 conda activate torch_env
 ```
 
-#### 1.3.2 物理机环境
+**注意：后续所有操作都在docker容器内进行**
+
+### 1.3 预训练权重下载
+
+对于英文任务，本项目使用NVIDIA提供的BERT-base-uncased预训练权重进行微调。可前往[NVIDIA-NGC](https://catalog.ngc.nvidia.com/orgs/nvidia/models/bert_pyt_ckpt_base_pretraining_amp_lamb/files)下载。该权重可用于SQuAD v1.1/CNN&DM/IMDb三个数据集的微调任务。
+
 ``` bash
-conda activate torchenv
-cd <modelzoo-root>/PyTorch/NLP/BERT
-pip install -r requirements.txt
+wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/bert_pyt_ckpt_base_pretraining_amp_lamb/19.09.0/files?redirect=true&path=bert_base.pt' -O bert_base.pt
 ```
 
-另外由于计算文本生成指标rouge时依赖libxml-parser-perl，需要自行安装：
+对于中文任务，则使用中文BERT的预训练权重，可前往[ModelScope](https://www.modelscope.cn/models/dienstag/chinese-bert-wwm/files)下载。该权重可用于THUCNews数据集的微调任务。
 
 ``` bash
-sudo apt-get install libxml-parser-perl
+# 确认此时已进入docker容器
+docker exec -it bert_base_pt /bin/bash
+cd /workspace/NLP/BERT
+conda activate torch_env
+
+pip install modelscope
+
+# 下载完成后默认保存至~/.cache/modelscope/hub/dienstag/chinese-bert-wwm/
+python data/download_bert_ckpt_cn.py
 ```
 
 ## 2 NLP任务支持
@@ -110,8 +100,8 @@ sudo apt-get install libxml-parser-perl
 #### 2.1.1 数据集获取
 
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT/data/squad
-# 下载完成后，会保存至<modelzoo-root>/PyTorch/NLP/BERT/data/squad/v1.1
+cd /workspace/NLP/BERT/data/squad
+# 下载完成后，会保存至/workspace/NLP/BERT/data/squad/v1.1
 sh squad_download.sh
 ```
 
@@ -121,7 +111,7 @@ sh squad_download.sh
 
 - Demo正确性测试
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384
 ```
@@ -129,7 +119,7 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 - 单机单卡训练
 
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
@@ -137,7 +127,7 @@ python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --
 - 单机八卡训练
 
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 32 --bs 2 --lr 6e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
@@ -189,7 +179,7 @@ rm WordNet-2.0.exc.db
 
 - Demo正确性测试
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 2e-3 --device sdaa --step 10 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.2 --max_seq_length 512
 ```
@@ -197,7 +187,7 @@ python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc
 - 单机单卡（4核）训练
 
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 2e-3 --device sdaa --step 20000 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.2 --max_seq_length 512 --do_predict
 ```
@@ -233,7 +223,7 @@ wget https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz
 # 下载完成后进行解压
 mkdir imdb_dataset && tar -xvf aclImdb_v1.tar.gz -C imdb_dataset
 
-cd <modelzoo-root>/PyTorch/NLP/BERT/data
+cd /workspace/NLP/BERT/data
 # 传入参数<path/to/imdb_dataset/aclImdb>与<path/to/processed_imdb>，<path/to/imdb_dataset/aclImdb>为数据集解压路径，<path/to/processed_imdb>为处理完后的数据保存路径
 python process_imdb.py <path/to/imdb_dataset/aclImdb> <path/to/processed_imdb>
 
@@ -246,7 +236,7 @@ python process_imdb.py <path/to/imdb_dataset/aclImdb> <path/to/processed_imdb>
 
 - Demo正确性测试
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path path/to/IMDB --checkpoint_path path/to/bert_base.pt --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
@@ -254,7 +244,7 @@ python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc
 - 单机单卡（4核）训练
 
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path path/to/IMDB --checkpoint_path path/to/bert_base.pt --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
 ```
@@ -288,9 +278,9 @@ wget https://thunlp.oss-cn-qingdao.aliyuncs.com/THUCNews.zip
 # 下载完成后进行解压
 unzip THUCNews.zip
 
-cd <modelzoo-root>/PyTorch/NLP/BERT/data
-# 传入参数<path/to/thucnews_dataset>与<path/to/output_dir>，<path/to/thucnews_dataset>为数据集解压路径，<path/to/output_dir>为处理完后的数据保存路径
-python process_thucnews.py <path/to/THUCNews> <path/to/output_dir>
+cd /workspace/NLP/BERT/data
+# 传入参数<path/to/thucnews_dataset>与<path/to/processed_thucnews>，<path/to/thucnews_dataset>为数据集解压路径，<path/to/processed_thucnews>为处理完后的数据保存路径
+python process_thucnews.py <path/to/THUCNews> <path/to/processed_thucnews>
 
 # 执行完成后processed_thucnews中会生成train.tsv dev.tsv两个文件
 ```
@@ -301,14 +291,14 @@ python process_thucnews.py <path/to/THUCNews> <path/to/output_dir>
 
 - Demo正确性测试
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path path/to/processed_thucnews --checkpoint_path path/to/pytorch_model.bin --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
 
 - 单机单卡（4核）训练
 ``` bash
-cd <modelzoo-root>/PyTorch/NLP/BERT
+cd /workspace/NLP/BERT
 # 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
 python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path path/to/processed_thucnews --checkpoint_path path/to/pytorch_model.bin --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
 ```
