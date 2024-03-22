@@ -7,6 +7,8 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 - [环境搭建](#1-环境搭建)
     - [代码拉取](#11-代码拉取)
     - [docker环境构建](#12-docker环境构建)
+        - [获取SDAA Torch基础docker环境](#121-获取sdaa-torch基础docker环境)
+        - [创建BERT docker环境](#122-创建bert-docker环境)
     - [预训练权重](#13-预训练权重)
 - [NLP任务支持](#2-nlp任务支持)
     - [问答任务-使用SQuAD v1.1数据集](#21-问答任务-使用squad-v11数据集)
@@ -38,25 +40,25 @@ git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 
 ### 1.2 docker环境构建
 
+#### 1.2.1 获取SDAA Torch基础docker环境
+
+SDAA提供了支持Torch的docker镜像，请参考[Teco文档中心的教程](http://10.10.4.11/release/tecopytorch/v1.3.0/#7dcd38aedada11eeb686024214151608)进行SDAA Torch基础docker镜像的部署
+
+#### 1.2.2 创建BERT docker环境
+
 - 进入BERT项目目录，运行以下命令
 
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
+
 DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t  torch_bert_base
 ```
 
-镜像内部软件栈版本信息如下:
-[SDAA软件栈版本信息](../../../.dependencies.json)
-|软件名|pytorch|sdaadriver|sdaart|tccl|dnn|blas|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|版本信息|1.3.0|1.0.0|1.0.0|1.14.0|1.15.0|1.15.0|
-
-
-创建BERT-base PyTorch sdaa docker容器：
+创建docker容器：
 ``` bash
-# 这里注意如果需要使用物理机的数据集和权重文件，需要通过-v参数挂载进docker
-# 后续流程中也会说明如何在docker容器内下载权重和数据集
-docker run  -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <path to checkpoint>:/workspace/checkpoint --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=32g torch_bert_base /bin/bash
+# 修改<path to dataset>与<path to checkpoint>分别指向物理机的数据集存放路径与权重存放路径
+# 如果物理机没有数据集与权重，则删除命令中的-v参数及其值，后续流程中将在docker容器内下载数据集和权重
+docker run -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <path to checkpoint>:/workspace/checkpoint --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=32g torch_bert_base /bin/bash
 ```
 
 - 参数介绍详见[Docker configuration](./docs/Docker_configuration.md)
@@ -66,6 +68,23 @@ docker run  -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v 
 docker exec -it bert_base_pt /bin/bash
 cd /workspace/NLP/BERT
 conda activate torch_env
+
+# 执行以下命令验证环境是否正确，正确则会打印如下版本信息
+python -c "import torch_sdaa"
+
+>>> --------------+----------------------------------------------
+>>>  Host IP      | X.X.X.X
+>>>  PyTorch      | 2.0.0a0+gitdfe6533
+>>>  Torch-SDAA   | 1.3.0
+>>> --------------+----------------------------------------------
+>>>  SDAA Driver  | 1.0.0 (N/A)
+>>>  SDAA Runtime | 1.0.0 (/opt/tecoai/lib64/libsdaart.so)
+>>>  SDPTI        | 1.0.0 (/opt/tecoai/lib64/libsdpti.so)
+>>>  TecoDNN      | 1.15.0 (/opt/tecoai/lib64/libtecodnn.so)
+>>>  TecoBLAS     | 1.15.0 (/opt/tecoai/lib64/libtecoblas.so)
+>>>  CustomDNN    | 1.15.0 (/opt/tecoai/lib64/libtecodnn_ext.so)
+>>>  TCCL         | 1.14.0 (/opt/tecoai/lib64/libtccl.so)
+>>> --------------+----------------------------------------------
 ```
 
 **注意：后续所有操作都在docker容器内进行**
@@ -88,7 +107,7 @@ conda activate torch_env
 
 pip install modelscope
 
-# 下载完成后默认保存至~/.cache/modelscope/hub/dienstag/chinese-bert-wwm/
+# 下载完成后默认保存至~/.cache/modelscope/hub/dienstag/chinese-bert-wwm/pytorch_model.bin
 python data/download_bert_ckpt_cn.py
 ```
 
@@ -112,24 +131,27 @@ sh squad_download.sh
 - Demo正确性测试
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.1.1中下载的SQuAD v1.1，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 3e-5 --device sdaa  --epoch 3 --step 10 --dataset_path <path/to/squad/v1.1> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.1 --max_seq_length 384
 ```
 
 - 单机单卡训练
 
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.1.1中下载的SQuAD v1.1，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 3e-5 --device sdaa --epoch 3 --dataset_path <path/to/squad/v1.1> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
 
 - 单机八卡训练
 
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 32 --bs 2 --lr 6e-5 --device sdaa --epoch 3 --dataset_path path/to/squad/v1.1 --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.1.1中下载的SQuAD v1.1，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_squad_v1.1.py --model_name bert_base_uncased --nproc_per_node 32 --bs 2 --lr 6e-5 --device sdaa --epoch 3 --dataset_path <path/to/squad/v1.1> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.1 --max_seq_length 384 --do_predict --do_eval
 ```
 
 ##### 参数说明
@@ -180,16 +202,18 @@ rm WordNet-2.0.exc.db
 - Demo正确性测试
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 2e-3 --device sdaa --step 10 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.2 --max_seq_length 512
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.2.1中下载的CNN/DM数据集，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 2e-3 --device sdaa --step 10 --dataset_path <path/to/dataset> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.2 --max_seq_length 512
 ```
 
 - 单机单卡（4核）训练
 
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 2e-3 --device sdaa --step 20000 --dataset_path path/to/dataset --grad_scale True --autocast True --checkpoint_path path/to/bert_base.pt --warm_up 0.2 --max_seq_length 512 --do_predict
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.2.1中下载的CNN/DM数据集，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 4 --bs 4 --lr 2e-3 --device sdaa --step 20000 --dataset_path <path/to/dataset> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.2 --max_seq_length 512 --do_predict
 ```
 
 ##### 参数说明
@@ -237,16 +261,18 @@ python process_imdb.py <path/to/imdb_dataset/aclImdb> <path/to/processed_imdb>
 - Demo正确性测试
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path path/to/IMDB --checkpoint_path path/to/bert_base.pt --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.3.1中处理完的IMDb数据集，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path <path/to/processed_imdb> --checkpoint_path <path/to/bert_base.pt> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
 
 - 单机单卡（4核）训练
 
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path path/to/IMDB --checkpoint_path path/to/bert_base.pt --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.3.1中处理完的IMDb数据集，预训练权重文件为1.3中下载bert_base.pt
+python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path <path/to/processed_imdb> --checkpoint_path <path/to/bert_base.pt> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
 ```
 
 ##### 参数说明
@@ -292,15 +318,17 @@ python process_thucnews.py <path/to/THUCNews> <path/to/processed_thucnews>
 - Demo正确性测试
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path path/to/processed_thucnews --checkpoint_path path/to/pytorch_model.bin --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.4.1中处理完的THUCNews数据集，预训练权重文件为1.3中下载pytorch_model.bin
+python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path <path/to/processed_thucnews> --checkpoint_path <path/to/pytorch_model.bin> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
 
 - 单机单卡（4核）训练
 ``` bash
 cd /workspace/NLP/BERT
-# 注意修改dataset_path和checkpoint_path，分别指向数据集目录和预训练权重文件
-python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path path/to/processed_thucnews --checkpoint_path path/to/pytorch_model.bin --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
+# 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
+# 数据集为2.4.1中处理完的THUCNews数据集，预训练权重文件为1.3中下载pytorch_model.bin
+python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 4 --bs 16 --lr 2.4e-5 --device sdaa --epoch 4 --dataset_path <path/to/processed_thucnews> --checkpoint_path <path/to/pytorch_model.bin> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True --do_eval
 ```
 
 ##### 参数说明

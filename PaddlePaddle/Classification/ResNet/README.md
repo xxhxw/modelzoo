@@ -12,39 +12,52 @@ ResNet-50是一种深度卷积神经网络模型，采用了残差网络（ResNe
 
 #### 1.1 拉取代码仓
 
-```
+``` bash
 git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
 ```
 
-#### 1.2 Docker 环境准备 
-##### 1.2.1 创建Docker环境
+#### 1.2 Docker 环境准备
+
+##### 1.2.1 获取SDAA Paddle基础docker环境
+
+SDAA提供了支持Paddle的docker镜像，请参考[Teco文档中心的教程](http://10.10.4.11/release/tecopaddle/v1.0.0/#8852d28eda9411eeaa09024214151608)进行SDAA Paddle基础docker镜像的部署
+
+##### 1.2.2 创建ResNet docker环境
 - 进入Dockerfile所在目录，运行以下命令
-```
+``` bash
 cd <modelzoo-dir>/PaddlePaddle/Classification/ResNet
+
 DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t paddle_r50
 ```
-镜像内部软件栈版本信息如下:
-[SDAA软件栈版本信息](../../../.dependencies.json)
-|软件名|paddle|sdaadriver|sdaart|tccl|dnn|blas|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|版本信息|1.0.0|1.0.0|1.0.0|1.14.0|1.15.0|1.15.0|
 
 - 创建ResNet50 PaddlePaddle sdaa docker容器
 
-```
+``` bash
 docker run  -itd --name r50_pd -v <dataset_path>:/imagenet  --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=128g paddle_r50 /bin/bash
 ```
 
 - 参数介绍详见[Docker configuration](./docs/Docker_configuration.md)
 
 - 进入Docker 容器
-```
+``` bash
 docker exec -it r50_pd /bin/bash
 ```
-##### 1.2.2 创建Teco虚拟环境
-```
+##### 1.2.3 创建Teco虚拟环境
+``` bash
 cd /workspace/Classification/ResNet/run_scripts
 conda activate paddle_env
+
+# 执行以下命令验证环境是否正确，正确则会打印如下版本信息
+python -c "import paddle"
+
+>>> sdaa plugin compiled with gcc
+>>> PaddlePaddle Compilation Commit: 733b5d7f4e8680f0eb8fe4e8d371cfffadd4a3fd
+>>> PaddlePaddle Compilation Version: 2.5.1
+>>> +---------+--------+---------------+--------------+-------------+----------+-----------+-----------+-------------+-------+--------------------+
+>>> |         | paddle | paddle_commit | sdaa_runtime | sdaa_driver | teco_dnn | teco_blas | teco_tccl | teco_custom | sdpti | paddle_sdaa_commit |
+>>> +---------+--------+---------------+--------------+-------------+----------+-----------+-----------+-------------+-------+--------------------+
+>>> | Version | 2.5.1  | 2e24fe5       | 1.0.0        | 1.0.0       | 1.17.0b0 | 1.17.0b0  | 1.14.0    | 1.17.0b0    | 1.0.0 | 04c5143            |
+>>> +---------+--------+---------------+--------------+-------------+----------+-----------+-----------+-------------+-------+--------------------+
 ```
 
 ### 2、数据集准备
@@ -57,41 +70,41 @@ https://image-net.org/download-images
 
 #### 2.2 解压数据集
 
-    - 解压训练数据集
-    ```
-    mkdir train && mv ILSVRC2012_img_train.tar train/ && cd train
-    tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
-    find . -name "*.tar" | while read NAME ; do mkdir -p "${NAME%.tar}"; tar -xvf "${NAME}" -C "${NAME%.tar}"; rm -f "${NAME}"; done
-    cd ..
-    ```
-    - 解压测试数据集并将图像移动到子文件夹中
-    ```
-    mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
-    wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
-    ```
+- 解压训练数据集
+``` bash
+mkdir train && mv ILSVRC2012_img_train.tar train/ && cd train
+tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
+find . -name "*.tar" | while read NAME ; do mkdir -p "${NAME%.tar}"; tar -xvf "${NAME}" -C "${NAME%.tar}"; rm -f "${NAME}"; done
+cd ..
+```
+- 解压测试数据集并将图像移动到子文件夹中
+``` bash
+mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
+wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
+```
 #### 2.3 在本文档中，包含`train/`和`val/`目录被称为`path to imagenet`，数据集目录结构参考如下所示:
 ```
-   ├── ImageNet2012
-         ├──train
-              ├──类别1
-                    │──图片1
-                    │──图片2
-                    │   ...
-              ├──类别2
-                    │──图片1
-                    │──图片2
-                    │   ...
-              ├──...
-         ├──val
-              ├──类别1
-                    │──图片1
-                    │──图片2
-                    │   ...
-              ├──类别2
-                 │──图片1
-                    │──图片2
-                    │   ...
-   ```
+├── ImageNet2012
+        ├──train
+            ├──类别1
+                │──图片1
+                │──图片2
+                │   ...
+            ├──类别2
+                │──图片1
+                │──图片2
+                │   ...
+            ├──...
+        ├──val
+            ├──类别1
+                │──图片1
+                │──图片2
+                │   ...
+            ├──类别2
+                │──图片1
+                │──图片2
+                │   ...
+```
 
    > **说明：**
    > 该数据集的训练过程脚本只作为一种参考示例。
@@ -99,7 +112,7 @@ https://image-net.org/download-images
 
 
 ### 3、 启动训练
-```
+``` bash
 # Docker环境
 cd /workspace/Classification/ResNet/run_scripts
 ```
