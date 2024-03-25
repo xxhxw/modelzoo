@@ -1,10 +1,7 @@
 # ResNet50
 
-
-
 ## 模型概述
 ResNet-50是一种深度卷积神经网络模型，采用了残差网络（ResNet）的结构，通过引入“残差块”（Residual Block）来解决了深度神经网络训练中的梯度消失和表示瓶颈问题。ResNet-50模型在各种计算机视觉任务中表现优异，如图像分类、目标检测和语义分割等。由于其良好的性能和广泛的应用，ResNet-50已成为深度学习和计算机视觉领域的重要基础模型之一。
-
 
 ## Quick Start Guide
 
@@ -13,24 +10,25 @@ ResNet-50是一种深度卷积神经网络模型，采用了残差网络（ResNe
 #### 1.1 拉取代码仓
 
 ``` bash
-git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
+git clone https://gitee.com/tecorigin/modelzoo.git
 ```
 
 #### 1.2 Docker 环境准备
 
 ##### 1.2.1 获取SDAA Paddle基础docker环境
 
-SDAA提供了支持Paddle的docker镜像，请参考[Teco文档中心的教程](http://10.10.4.11/release/tecopaddle/v1.0.0/#8852d28eda9411eeaa09024214151608)进行SDAA Paddle基础docker镜像的部署
+SDAA提供了支持Paddle的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com/release/tecopaddle/v1.0.0/)->安装指南->Docker安装中的内容进行SDAA Paddle基础docker镜像的部署。
 
 ##### 1.2.2 创建ResNet docker环境
-- 进入Dockerfile所在目录，运行以下命令
+进入Dockerfile所在目录，运行以下命令：
+
 ``` bash
 cd <modelzoo-dir>/PaddlePaddle/Classification/ResNet
 
 DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t paddle_r50
 ```
 
-- 创建ResNet50 PaddlePaddle sdaa docker容器
+创建ResNet50 PaddlePaddle sdaa docker容器：
 
 ``` bash
 docker run  -itd --name r50_pd -v <dataset_path>:/imagenet  --net=host --ipc=host --device /dev/tcaicard0 --device /dev/tcaicard1 --device /dev/tcaicard2 --device /dev/tcaicard3 --shm-size=128g paddle_r50 /bin/bash
@@ -38,11 +36,13 @@ docker run  -itd --name r50_pd -v <dataset_path>:/imagenet  --net=host --ipc=hos
 
 - 参数介绍详见[Docker configuration](./docs/Docker_configuration.md)
 
-- 进入Docker 容器
+进入Docker容器：
+
 ``` bash
 docker exec -it r50_pd /bin/bash
 ```
 ##### 1.2.3 创建Teco虚拟环境
+
 ``` bash
 cd /workspace/Classification/ResNet/run_scripts
 conda activate paddle_env
@@ -65,45 +65,51 @@ python -c "import paddle"
 
 ResNet50运行在ImageNet 1k上，这是一个来自ILSVRC挑战赛的广受欢迎的图像分类数据集。要使用混合精度或FP32精度训练您的模型，请根据以下步骤获取并处理数据集：
 
-2.1.1. 从公开网站中获取数据集下载
+##### 2.1.1. 从公开网站中获取数据集下载
 https://image-net.org/download-images
 
 #### 2.2 解压数据集
 
-- 解压训练数据集
+解压训练数据集：
+
 ``` bash
 mkdir train && mv ILSVRC2012_img_train.tar train/ && cd train
 tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
 find . -name "*.tar" | while read NAME ; do mkdir -p "${NAME%.tar}"; tar -xvf "${NAME}" -C "${NAME%.tar}"; rm -f "${NAME}"; done
 cd ..
 ```
-- 解压测试数据集并将图像移动到子文件夹中
+解压测试数据集并将图像移动到子文件夹中：
+
 ``` bash
 mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
 wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
 ```
-#### 2.3 在本文档中，包含`train/`和`val/`目录被称为`path to imagenet`，数据集目录结构参考如下所示:
+#### 2.3 数据集目录结构
+
+在本文档中，包含`train/`和`val/`目录被称为`path to imagenet`，数据集目录结构参考如下所示:
+
 ```
-├── ImageNet2012
-        ├──train
-            ├──类别1
-                │──图片1
-                │──图片2
-                │   ...
-            ├──类别2
-                │──图片1
-                │──图片2
-                │   ...
-            ├──...
-        ├──val
-            ├──类别1
-                │──图片1
-                │──图片2
-                │   ...
-            ├──类别2
-                │──图片1
-                │──图片2
-                │   ...
+└── ImageNet2012
+    ├──train
+    │   ├──类别1
+    │   │   ├──图片1
+    │   │   ├──图片2
+    │   │   └── ...
+    │   ├──类别2
+    │   │   ├──图片1
+    │   │   ├──图片2
+    │   │   └── ...
+    │   └── ...
+    └──val
+        ├──类别1
+        │   ├──图片1
+        │   ├──图片2
+        │   └── ...
+        ├──类别2
+        │   ├──图片1
+        │   ├──图片2
+        │   └── ...
+        └── ...
 ```
 
    > **说明：**
@@ -112,6 +118,7 @@ wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/
 
 
 ### 3、 启动训练
+
 ``` bash
 # Docker环境
 cd /workspace/Classification/ResNet/run_scripts
@@ -120,7 +127,8 @@ cd /workspace/Classification/ResNet/run_scripts
 
 - Demo测试正确性
 
-    下面给出了一个在单卡单核上20steps的训练脚本的例子，用于测试模型代码及数据集正确性，更多的训练参数可以参考[run_scripts/README.md](./run_scripts/README.md)
+    下面给出了一个在单卡单核上20steps的训练脚本的例子，用于测试模型代码及数据集正确性，更多的训练参数可以参考[run_scripts/README.md](./run_scripts/README.md)。
+
     ```
     python run_paddle_resnet.py --model_name resnet50 --nproc_per_node 1 --bs 64 --lr 0.064 --device sdaa --step 20 --epoch 1 --dataset_path /imagenet  --grad_scale True --autocast True
     ```

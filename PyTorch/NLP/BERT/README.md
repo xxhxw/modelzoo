@@ -9,7 +9,7 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
     - [docker环境构建](#12-docker环境构建)
         - [获取SDAA Torch基础docker环境](#121-获取sdaa-torch基础docker环境)
         - [创建BERT docker环境](#122-创建bert-docker环境)
-    - [预训练权重](#13-预训练权重)
+    - [预训练权重下载](#13-预训练权重下载)
 - [NLP任务支持](#2-nlp任务支持)
     - [问答任务-使用SQuAD v1.1数据集](#21-问答任务-使用squad-v11数据集)
         - [数据集获取](#211-数据集获取)
@@ -35,18 +35,18 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 ### 1.1 代码拉取
 
 ``` bash
-git clone http://gitlab-qe.tecorigin.net/tecoegc/modelzoo.git
+git clone https://gitee.com/tecorigin/modelzoo.git
 ```
 
 ### 1.2 docker环境构建
 
 #### 1.2.1 获取SDAA Torch基础docker环境
 
-SDAA提供了支持Torch的docker镜像，请参考[Teco文档中心的教程](http://10.10.4.11/release/tecopytorch/v1.3.0/#7dcd38aedada11eeb686024214151608)进行SDAA Torch基础docker镜像的部署
+SDAA提供了支持Torch的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com/release/tecopytorch/v1.3.0/)-->安装指南->Docker安装中的内容进行SDAA Torch基础docker镜像的部署。
 
 #### 1.2.2 创建BERT docker环境
 
-- 进入BERT项目目录，运行以下命令
+进入BERT项目目录，运行以下命令：
 
 ``` bash
 cd <modelzoo-root>/PyTorch/NLP/BERT
@@ -55,6 +55,7 @@ DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker build . -t  torch_bert_base
 ```
 
 创建docker容器：
+
 ``` bash
 # 修改<path to dataset>与<path to checkpoint>分别指向物理机的数据集存放路径与权重存放路径
 # 如果物理机没有数据集与权重，则删除命令中的-v参数及其值，后续流程中将在docker容器内下载数据集和权重
@@ -63,7 +64,8 @@ docker run -itd --name bert_base_pt -v <path to dataset>:/workspace/dataset -v <
 
 - 参数介绍详见[Docker configuration](./docs/Docker_configuration.md)
 
-进入docker容器
+进入docker容器：
+
 ``` bash
 docker exec -it bert_base_pt /bin/bash
 cd /workspace/NLP/BERT
@@ -195,7 +197,7 @@ rm WordNet-2.0.exc.db
 
 #### 2.2.3 训练及验证
 
-请务必按照2.2.2节中的流程完成rouge依赖的安装，否则测试阶段会出现报错
+请务必按照2.2.2节中的流程完成rouge依赖的安装，否则测试阶段会出现报错。
 
 该任务支持单卡运行。
 
@@ -207,7 +209,7 @@ cd /workspace/NLP/BERT
 python run_scripts/run_bert_base_cnndm.py --model_name bert_base_uncased --nproc_per_node 1 --bs 4 --lr 2e-3 --device sdaa --step 10 --dataset_path <path/to/dataset> --grad_scale True --autocast True --checkpoint_path <path/to/bert_base.pt> --warm_up 0.2 --max_seq_length 512
 ```
 
-- 单机单卡（4核）训练
+- 单机单卡训练
 
 ``` bash
 cd /workspace/NLP/BERT
@@ -259,6 +261,7 @@ python process_imdb.py <path/to/imdb_dataset/aclImdb> <path/to/processed_imdb>
 该任务支持单卡运行。
 
 - Demo正确性测试
+
 ``` bash
 cd /workspace/NLP/BERT
 # 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
@@ -266,7 +269,7 @@ cd /workspace/NLP/BERT
 python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path <path/to/processed_imdb> --checkpoint_path <path/to/bert_base.pt> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
 
-- 单机单卡（4核）训练
+- 单机单卡训练
 
 ``` bash
 cd /workspace/NLP/BERT
@@ -295,7 +298,7 @@ python run_scripts/run_bert_base_imdb.py --model_name bert-large-uncased --nproc
 
 THUCNews是一个多分类的中文新闻数据集，包括 财经, 彩票, 房产, 股票, 家居, 教育, 科技, 社会, 时尚, 时政, 体育, 星座, 游戏, 娱乐 14种新闻。默认使用混合精度训练，可以用两种方法获取训练使用的数据集。
 
-清华官方提供了[THUCNews数据集](http://thuctc.thunlp.org/)下载。也可通过下面的命令下载
+清华官方提供了[THUCNews数据集](http://thuctc.thunlp.org/)下载。也可通过下面的命令下载。
 
 ``` bash
 # 数据集下载
@@ -316,6 +319,7 @@ python process_thucnews.py <path/to/THUCNews> <path/to/processed_thucnews>
 该任务支持单卡运行。
 
 - Demo正确性测试
+
 ``` bash
 cd /workspace/NLP/BERT
 # 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
@@ -323,7 +327,8 @@ cd /workspace/NLP/BERT
 python run_scripts/run_bert_base_thucnews.py --model_name bert-base-chinese --nproc_per_node 1 --bs 16 --lr 2.4e-5 --device sdaa --step 10 --dataset_path <path/to/processed_thucnews> --checkpoint_path <path/to/pytorch_model.bin> --max_seq_length 128 --warm_up 0.1 --grad_scale True --autocast True
 ```
 
-- 单机单卡（4核）训练
+- 单机单卡训练
+
 ``` bash
 cd /workspace/NLP/BERT
 # 注意修改--dataset_path参数和--checkpoint_path参数，分别指向数据集目录和预训练权重文件
