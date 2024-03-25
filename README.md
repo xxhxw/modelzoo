@@ -11,7 +11,7 @@ ModelZoo仓库包含2个子仓库，包含Pytorch、PaddlePaddle，您可以直�
 
 | 子仓库  | 说明 |
 | ------------- | ------------- |
-| [Pytorch](./PyTorch) | 基于PyTorch-SDAA框架的训练模型集合 |
+| [PyTorch](./PyTorch) | 基于PyTorch-SDAA框架的训练模型集合 |
 | [PaddlePaddle](./PaddlePaddle) | 基于PaddlePaddle-SDAA框架的训练模型集合 |
 
 
