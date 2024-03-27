@@ -42,7 +42,7 @@ git clone https://gitee.com/tecorigin/modelzoo.git
 
 #### 1.2.1 获取SDAA Torch基础docker环境
 
-SDAA提供了支持Torch的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com/release/tecopytorch/v1.3.0/)-->安装指南->Docker安装中的内容进行SDAA Torch基础docker镜像的部署。
+SDAA提供了支持Torch的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com:8880/release/tecopytorch/v1.3.0/)-->安装指南->Docker安装中的内容进行SDAA Torch基础docker镜像的部署。
 
 #### 1.2.2 创建BERT docker环境
 

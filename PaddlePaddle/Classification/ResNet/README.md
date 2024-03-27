@@ -17,7 +17,7 @@ git clone https://gitee.com/tecorigin/modelzoo.git
 
 ##### 1.2.1 获取SDAA Paddle基础docker环境
 
-SDAA提供了支持Paddle的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com/release/tecopaddle/v1.0.0/)->安装指南->Docker安装中的内容进行SDAA Paddle基础docker镜像的部署。
+SDAA提供了支持Paddle的docker镜像，请参考[Teco文档中心的教程](http://docs.tecorigin.com:8880/release/tecopaddle/v1.0.0/)->安装指南->Docker安装中的内容进行SDAA Paddle基础docker镜像的部署。
 
 ##### 1.2.2 创建ResNet docker环境
 进入Dockerfile所在目录，运行以下命令：
