@@ -110,7 +110,7 @@ if __name__ == '__main__':
             -o  DataLoader.Train.dataset.image_root={data_path} \
             -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
             -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_copy_list.txt \
+            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
             -o  Global.early_stop={early_stop} \
             -o  DataLoader.Train.loader.num_workers={num_workers} \
             -o  Global.profiler={profiler} \
@@ -134,7 +134,7 @@ if __name__ == '__main__':
             -o  DataLoader.Train.dataset.image_root={data_path} \
             -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
             -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_copy_list.txt \
+            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
             -o  Global.early_stop={early_stop} \
             -o  DataLoader.Train.loader.num_workers={num_workers} \
             '
@@ -156,7 +156,7 @@ if __name__ == '__main__':
             -o  DataLoader.Train.dataset.image_root={data_path} \
             -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
             -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_copy_list.txt \
+            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
             -o  DataLoader.Train.loader.num_workers={num_workers} \
          '
     elif precision_align:
@@ -177,7 +177,7 @@ if __name__ == '__main__':
             -o  DataLoader.Train.dataset.image_root={data_path} \
             -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
             -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_copy_list.txt \
+            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
             -o  DataLoader.Train.loader.num_workers={num_workers} \
             '
     else:
@@ -196,7 +196,7 @@ if __name__ == '__main__':
             -o  DataLoader.Train.dataset.image_root={data_path} \
             -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
             -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_copy_list.txt \
+            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
             -o  Global.early_stop={early_stop} \
             -o  DataLoader.Train.loader.num_workers={num_workers} \
             '

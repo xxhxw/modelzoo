@@ -78,11 +78,11 @@ tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
 find . -name "*.tar" | while read NAME ; do mkdir -p "${NAME%.tar}"; tar -xvf "${NAME}" -C "${NAME%.tar}"; rm -f "${NAME}"; done
 cd ..
 ```
-解压测试数据集并将图像移动到子文件夹中：
+解压测试数据集：
 
 ``` bash
 mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xvf ILSVRC2012_img_val.tar
-wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
+cd ..
 ```
 #### 2.3 数据集目录结构
 
@@ -100,20 +100,35 @@ wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/
     │   │   ├──图片2
     │   │   └── ...
     │   └── ...
-    └──val
-        ├──类别1
-        │   ├──图片1
-        │   ├──图片2
-        │   └── ...
-        ├──类别2
-        │   ├──图片1
-        │   ├──图片2
-        │   └── ...
-        └── ...
+    ├──val
+    │    ├──图片1
+    │    ├──图片2
+    │    ├──图片3
+    │    ├──图片4
+    │    └── ...
+    ├──train_list.txt
+    └──val_list.txt
 ```
+
+train_list.txt、val_list.txt 的格式如下：
+
+```
+# 每一行采用"空格"分隔图像路径与标注
+
+# 下面是 train_list.txt 中的格式样例
+train/n01440764/n01440764_10026.JPEG 0
+...
+
+# 下面是 val_list.txt 中的格式样例
+val/ILSVRC2012_val_00000001.JPEG 65
+...
+```
+
+具体说明可参考[PaddleClas数据集说明](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/training/single_label_classification/dataset.md#1-%E6%95%B0%E6%8D%AE%E9%9B%86%E6%A0%BC%E5%BC%8F%E8%AF%B4%E6%98%8E)
 
    > **说明：**
    > 该数据集的训练过程脚本只作为一种参考示例。
+
 
 
 
