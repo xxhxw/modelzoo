@@ -1,6 +1,7 @@
 # 介绍
 
 各位亲爱的太初生态伙伴们！首先，我们衷心感谢您对我们太初的关注与支持。我们专注于为深度学习领域提供高性能。高能效的智能算力解决方案，目前已经成功适配了业界广泛认可的两个主要框架——PyTorch和PaddlePaddle。我们相信，通过与您的紧密合作和共同探索，我们的硬件产品将能够更好地服务于AI社区，推动人工智能技术的发展与应用。
+
 热烈欢迎各位伙伴一起来参与我们的开源项目，共同推进人工智能技术的发展。
 
 # 贡献要求
@@ -121,4 +122,5 @@ DOCKERFILE文件可以参考: [](https://gitee.com/tecorigin/modelzoo/blob/main/
 2. 对于非太初适配团队, 模型来源为contrib
 3. 算法领域当前有Classification,Detection,Face,GNN,NLP,Recommendation,Reinforcement,Segmentation,Speech
 4. 对应的模型名称
+
 例如GoogleNet的PyTorch版本为: PyTorch/contrib/Classification/GoogleNet
