@@ -1,13 +1,13 @@
 # 介绍
 
-各位亲爱的太初生态伙伴们！首先，我们衷心感谢您对我们太初的关注与支持。我们专注于为深度学习领域提供高性能。高能效的智能算力解决方案，目前已经成功适配了业界广泛认可的两个主要框架——PyTorch和PaddlePaddle。我们相信，通过与您的紧密合作和共同探索，我们的硬件产品将能够更好地服务于AI社区，推动人工智能技术的发展与应用。
+各位亲爱的太初生态伙伴们！首先，我们衷心感谢您对我们太初的关注与支持。我们专注于为深度学习领域提供高性能，高能效的智能算力解决方案，目前已经成功适配了业界广泛认可的两个主要框架——PyTorch和PaddlePaddle。我们相信，通过与您的紧密合作和共同探索，我们的硬件产品将能够更好地服务于AI社区，推动人工智能技术的发展与应用。
 
 热烈欢迎各位伙伴一起来参与我们的开源项目，共同推进人工智能技术的发展。
 
 # 贡献要求
-开发者提交的模型包括适配后的运行代码、LICENSE、README、DOCKERFILE、run_scripts等, 并遵循一下标准
+开发者提交的模型包括适配后的运行代码、LICENSE、README、Dockerfile、run_scripts等， 并遵循以下标准
 
-## Modelzoo License规则
+## ModelZoo License规则
 1. 在所有完全自主开发的代码文件和头文件内容最上方补充如下内容（提供C/C++、Python两种版本，请根据代码语言进行选择）：
 
 C/C++ License
@@ -72,55 +72,58 @@ Python License
 
  ## README
 
-README向用户介绍模型的功能、使用方法、性能、精度、数据集、环境依赖等信息，readme文件应包含如下内容：
+README向用户介绍模型的功能、使用方法、性能、精度、数据集、环境依赖等信息，README文件应包含如下内容：
 
 - 简介：
 
-    1. 模型的介绍, 包含模型的出处和算法介绍.
+    1. 模型的介绍，包含模型的出处和算法介绍.
     
-    2. 数据集准备:数据集获取方法, 数据集处理方法.
+    2. 数据集准备:数据集获取方法，数据集处理方法.
 
-    2. Docker环境准备的方法: 包括获取SDAA基础Docker环境,创建当前模型Docker镜像, 创建当前模型Docker容器, 启动当前模型Docker容器等
+    2. Docker环境准备的方法: 包括获取SDAA基础Docker环境，创建当前模型Docker镜像，创建当前模型Docker容器，启动当前模型Docker容器等
 
-    3. 启动训练的方法: 包括进入对应启动脚本的目录,和启动的方法
+    3. 启动训练的方法: 包括进入对应启动脚本的目录，和启动的方法
 
     4. 训练结果
 
 - 关键要求：
-1、模型的精度应当达到原始模型水平
+    1. 模型的精度应当达到原始模型水平
 
-2、模型的训练过程应当使用DDP和AMP
+    2. 模型的训练过程应当使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)
 
-3、环境变量设置, 依赖的第三方软件和库, 应当在DockerFile中处理完成
+    3. 环境变量设置，依赖的第三方软件和库，应当在Dockerfile中处理完成
 
-训练README写作可参考下面两个链接：
+
+README写作可参考如下链接：
 
 [ResNet50 PaddlePaddle README](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet)
 
  ## 统一接口
 为方便模型的使用和测试，我们统一模型的运行接口和日志接口。
-1. 统一运行接口
-统一使用run_scirpts接口规则进行模型运行, 
-该目录下至少应当包括:
-    1. README: 参数介绍至少应当有model_name, batchsize, epoch或step, nnode, node_rank参数
-    2. run_script.py: 使用argument对参数进行解析, 并转换为str格式的启动脚本, 并使用os.system()启动脚本。
+### 统一运行接口
 
+统一使用run_scirpts接口规则进行模型运行，
+该目录下至少应当包括:
+
+1. README: 参数介绍至少应当有model_name，batchsize，epoch或step，nnode，node_rank参数
+
+2. run_script.py: 使用argument对参数进行解析，并转换为str格式的启动脚本，并使用os.system()启动脚本。
 请参考: [ResNet50 PaddlePaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)
 
-2. 统一日志接口
-统一使用tcap_dlloger输出统一的log日志, 用于分析模型运行过程和结果.
+### 统一日志接口
+
+统一使用tcap_dlloger输出统一的log日志，用于分析模型运行过程和结果.
 使用方法请参考:[tcap_dlloger README](https://gitee.com/xiwei777/tcap_dlloger)
 
-## DOCKERFILE
-本仓库所有模型都基于Docker环境进行部署, Docker镜像环境的准备使用DOCKERFILE文件进行配置。
-DOCKERFILE文件可以参考: [](https://gitee.com/tecorigin/modelzoo/blob/main/PaddlePaddle/Classification/ResNet/README.md)
+## Dockerfile
+本仓库所有模型都基于Docker环境进行部署，Docker镜像环境的准备使用Dockerfile文件进行配置。
+Dockerfile文件可以参考: [Paddle ResNet50 Dockerfile](https://gitee.com/tecorigin/modelzoo/blob/main/PaddlePaddle/Classification/ResNet/Dockerfile)
 
 
 ## 路径规范
-路径应当为:<框架名>/<模型来源>/<算法领域>/<模型名称>
+贡献者提交的模型路径应当为:<框架名>/contrib/<算法领域>/<模型名称>
 1. 框架名当前包括PyTorch或PaddlePaddle
-2. 对于非太初适配团队, 模型来源为contrib
-3. 算法领域当前有Classification,Detection,Face,GNN,NLP,Recommendation,Reinforcement,Segmentation,Speech
-4. 对应的模型名称
+2. 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech、请开发者从上述
+3. 对应的模型名称
 
-例如GoogleNet的PyTorch版本为: PyTorch/contrib/Classification/GoogleNet
+例如GoogleNet的PyTorch版本提交的路径为为: PyTorch/contrib/Classification/GoogleNet
