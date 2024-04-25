@@ -121,7 +121,7 @@ Dockerfile文件可以参考: [Paddle ResNet50 Dockerfile](https://gitee.com/tec
 ## 路径规范
 贡献者提交的模型路径应当为:<框架名>/contrib/<算法领域>/<模型名称>。
 1. 框架名当前包括PyTorch或PaddlePaddle。
-2. 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech、请开发者从上述。
+2. 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech、请开发者从上述的算法领域中选择。
 3. 模型名称即是对应的模型名称。
 
-例如GoogleNet的PyTorch版本提交的路径为为: PyTorch/contrib/Classification/GoogleNet。
+例如GoogleNet的PyTorch版本提交的路径为: PyTorch/contrib/Classification/GoogleNet。
