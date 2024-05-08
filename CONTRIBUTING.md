@@ -94,7 +94,7 @@ README向用户介绍模型的功能、使用方法、性能、精度、数据�
 
 README写作可参考如下链接：
 
-[ResNet50 PaddlePaddle README](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet)
+[ResNet50 TecoPaddle README](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet)
 
  ## 统一接口
 为方便模型的使用和测试，Tecorigin ModelZoo提供统一的模型运行接口和日志接口。
@@ -106,7 +106,7 @@ README写作可参考如下链接：
 1. README: 参数介绍至少应当有model_name，batchsize，epoch或step，nnode，node_rank参数。
 
 2. run_script.py: 使用argparse对参数进行解析，并转换为str格式的启动脚本，并使用os.system()启动脚本。
-请参考: [ResNet50 PaddlePaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)。
+请参考: [ResNet50 TecoPaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)。
 
 ### 统一日志接口
 
@@ -115,13 +115,13 @@ README写作可参考如下链接：
 
 ## Dockerfile
 本仓库所有模型都基于Docker环境进行部署，Docker镜像环境的准备使用Dockerfile文件进行配置。
-Dockerfile文件可以参考: [Paddle ResNet50 Dockerfile](https://gitee.com/tecorigin/modelzoo/blob/main/PaddlePaddle/Classification/ResNet/Dockerfile)。
+Dockerfile文件可以参考: [TecoPaddle ResNet50 Dockerfile](https://gitee.com/tecorigin/modelzoo/blob/main/PaddlePaddle/Classification/ResNet/Dockerfile)。
 
 
 ## 路径规范
 贡献者提交的模型路径应当为:<框架名>/contrib/<算法领域>/<模型名称>。
 1. 框架名当前包括PyTorch或PaddlePaddle。
-2. 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech、请开发者从上述。
+2. 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech，请开发者从上述中选择。如果所选模型不在上述列表中，可使用其他算法领域名称，并在issue中对此进行说明。
 3. 模型名称即是对应的模型名称。
 
 例如GoogleNet的PyTorch版本提交的路径为为: PyTorch/contrib/Classification/GoogleNet。
@@ -129,7 +129,7 @@ Dockerfile文件可以参考: [Paddle ResNet50 Dockerfile](https://gitee.com/tec
 ## PR(Pull Requests)提交
 1. 请fork Tecorigin/ModelZoo仓库至开发者账号下，基于开发者账号下的ModelZoo进行工作。完成开发内容后提交Pull Requests，源分支选择开发分支，目标分支选择tecorigin/modelzoo:main。
 
-    工作分支名称命名为contrib/<开发者团队名称>/<模型名称>，例如contrib/jiangnan_university_ailab/deeplabv3。
+    建议工作分支名称命名为contrib/<开发者团队名称>/<模型名称>，例如contrib/jiangnan_university_ailab/deeplabv3。
 
 2. PR标题：请在PR标题前标注活动名称，开发者团队名称及适配的内容。
 
@@ -147,5 +147,7 @@ Dockerfile文件可以参考: [Paddle ResNet50 Dockerfile](https://gitee.com/tec
 具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-江南大学AILAB-在PyTorch框架上支持resnet50在imagenet上的训练【请勿合入，仅作为PR模板进行展示】](https://gitee.com/tecorigin/modelzoo/pulls/10)
 
 ## 编程规范
-1. commit message遵循[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)规范。
-2. Python代码遵循[PEP8](https://peps.python.org/pep-0008/)规范。
+- Python代码遵循[PEP8](https://peps.python.org/pep-0008/)规范。
+
+## commit信息提交建议
+- commit message建议使用[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)规范。
