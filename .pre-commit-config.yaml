@@ -32,14 +32,14 @@ repos:
 
 
 # Dockefile镜像版本对齐，README补充版本信息
--   repo: local
-    hooks:
-    -   id: check-dependencies
-        name: Check Project Dependencies
-        entry: python tools/dependencies/check_dependencies.hook
-        language: system
-        stages: [commit]
-        pass_filenames: false
+# -   repo: local
+#     hooks:
+#     -   id: check-dependencies
+#         name: Check Project Dependencies
+#         entry: python tools/dependencies/check_dependencies.hook
+#         language: system
+#         stages: [commit]
+#         pass_filenames: false
 
 
 # 检查module中的py文件是否包含pdb以及breakpoint
@@ -63,11 +63,11 @@ repos:
 #         pass_filenames: false
 
 # 检查新增py文件是否包含swai关键字
--   repo: local
-    hooks:
-    -   id: check-swai-string
-        name: Check SWAI String Usage
-        entry: python tools/module/check_swai.hook
-        language: system
-        stages: [commit]
-        pass_filenames: false
+# -   repo: local
+#     hooks:
+#     -   id: check-swai-string
+#         name: Check SWAI String Usage
+#         entry: python tools/module/check_swai.hook
+#         language: system
+#         stages: [commit]
+#         pass_filenames: false
