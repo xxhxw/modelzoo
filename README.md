@@ -37,4 +37,4 @@ ModelZoo仅提供公共数据集的下载链接。这些公共数据集不属于
 如果您不希望您的数据集公布在ModelZoo上或希望更新ModelZoo中属于您的数据集，请在Github/Gitee中提交issue,我们将根据您的issue删除或更新您的数据集。衷心感谢您对我们社区的理解和贡献。
 
 ## 许可认证
-Teco ModelZoo的license是BSD 3.具体内容，请参见[LICENSE](./LICENSE)文件。
+Teco ModelZoo采用The 3-Clause BSD License。具体内容，请参见[LICENSE](./LICENSE)文件。
