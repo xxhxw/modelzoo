@@ -139,12 +139,13 @@ Dockerfile文件可以参考: [TecoPaddle ResNet50 Dockerfile](https://gitee.com
     例如参与[【生态活动】元碁智汇·定义未来](https://gitee.com/tecorigin/teco-torch/issues/I9HG17?from=project-issue)时，标题请参考 **【生态活动】元碁智汇·定义未来-江南大学AILAB-在PyTorch框架上支持resnet50在imagenet上的训练**
 
 3. PR内容：PR内容应当包括如下具体信息：
-    - 本次提交代commit id链接：应当给到具体的commit id，当有新的feature commit后，开发者应当编辑此处，更新至最新的commit id。
-    - 当前适配的软件栈版本：在python中import torch_sdaa/paddle_sdaa即可打印当前软件栈版本。
-    - 源码参考：应当给出具体的参考链接和对应的commit id或tag。
+    - 当前适配的软件栈版本：在python中import torch_sdaa/paddle_sdaa即可打印当前软件栈版本，以截图的方式提供即可。
+    - 源码参考：应当给出具体的参考链接和对应的commit id或tag，如果无参考源码，请说明。
     - 工作目录：请参考路径规范。
     - 适配内容及对应的运行脚本：提测脚本应当使用run_script的方式运行。
-    - 结果展示：结果展示用应当包含数据集，模型精度结果及模型运行脚本运行时间。
+    - 结果展示：结果展示用应当包含模型精度结果及模型运行脚本运行时间。
+        -  如果为完整的训练或微调任务，请提供最终的metric结果。
+        -  如果为短训，请提供loss曲线图和最终的loss结果。
     - README自测结果：确定README已经通过自测，非开发者可以通过README运行此次PR内容。
 
 具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-江南大学AILAB-在PyTorch框架上支持resnet50在imagenet上的训练【请勿合入，仅作为PR模板进行展示】](https://gitee.com/tecorigin/modelzoo/pulls/10)
