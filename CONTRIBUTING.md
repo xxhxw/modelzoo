@@ -80,16 +80,18 @@ README向用户介绍模型的功能、使用方法、性能、精度、数据�
     
     2. 数据集准备:数据集获取方法，数据集处理方法。
 
-    2. Docker环境准备的方法: 包括获取SDAA基础Docker环境，创建当前模型Docker镜像，创建当前模型Docker容器，启动当前模型Docker容器等。
+    3. Docker环境准备的方法: 包括获取SDAA基础Docker环境，创建当前模型Docker镜像，创建当前模型Docker容器，启动当前模型Docker容器等。
 
-    3. 启动训练的方法: 包括进入对应启动脚本的目录，和启动的方法。
+    4. 启动训练的方法: 包括进入对应启动脚本的目录，和启动的方法。
 
-    4. 训练结果: 使用表格提供简单的参数介绍，和对应的精度和性能结果。
+    5. 训练结果: 使用表格提供简单的参数介绍，和对应的精度和性能结果。
 
 - 关键要求：
     1. 模型的精度应当达到原始模型水平。
 
-    2. 模型的训练过程应当使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)。
+    2. 模型的训练过程中，如果可以，请使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)来提升性能。
+
+    3. 如果使用开源数据集或权重，提供开源获取方式和数据处理方法。如果使用非开源数据集或权重，请提供百度网盘下载链接和数据处理方法。
 
 
 README写作可参考如下链接：
@@ -117,6 +119,7 @@ README写作可参考如下链接：
 本仓库所有模型都基于Docker环境进行部署，Docker镜像环境的准备使用Dockerfile文件进行配置。
 Dockerfile文件可以参考: [TecoPaddle ResNet50 Dockerfile](https://gitee.com/tecorigin/modelzoo/blob/main/PaddlePaddle/Classification/ResNet/Dockerfile)。
 
+- 由于部分开发者使用docker环境，PR不强制要求使用【docker环境构建】，但需要提供除框架外的【环境搭建】说明，包括但不限于requirements.txt文件及对应的安装流程。
 
 ## 路径规范
 贡献者提交的模型路径应当为:<框架名>/contrib/<算法领域>/<模型名称>。
