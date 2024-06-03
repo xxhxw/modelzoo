@@ -89,7 +89,7 @@ README向用户介绍模型的功能、使用方法、性能、精度、数据�
 - 关键要求：
     1. 模型的精度应当达到原始模型水平。
 
-    2. 模型的训练过程中，如果可以，请使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)来提升性能。
+    2. 模型的训练过程中，使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)来提升性能。
 
     3. 如果使用开源数据集或权重，提供开源获取方式和数据处理方法。如果使用非开源数据集或权重，请提供百度网盘下载链接和数据处理方法。
 
@@ -105,7 +105,7 @@ README写作可参考如下链接：
 统一使用run_scirpts接口规则进行模型运行，
 该目录下至少应当包括:
 
-1. README: 参数介绍至少应当有model_name，batchsize，epoch或step，nnode，node_rank参数。
+1. README: 参数介绍至少应当有model_name，batchsize，epoch或step，针对单机DDP测例，额外添加nproc_per_node，针对多机DDP测例，额外添加nnode，node_rank参数。
 
 2. run_script.py: 使用argparse对参数进行解析，并转换为str格式的启动脚本，并使用os.system()启动脚本。
 请参考: [ResNet50 TecoPaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)。
