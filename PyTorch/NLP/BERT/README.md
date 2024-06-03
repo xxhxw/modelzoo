@@ -359,11 +359,11 @@ epoch| 训练轮次，和训练步数冲突 | --epoch 3
 step | 训练步数，和训练轮数冲突 | --step 10
 batch_size/bs | 每个rank的batch_size | --batch_size 4 / --bs 4
 dataset_path | 数据集路径 | --dataset_path path/to/dataset
-nproc_per_node | DDP时，每个node上的rank数量。不输入时，默认为1，跑单核 | --nproc_per_node 4
+nproc_per_node | DDP时，每个node上的rank数量。不输入时，默认为1，表示单核运行 | --nproc_per_node 4
 lr|学习率|--lr 3e-5
 device|设备类型|--device cuda/--device sdaa
-autocast|开启amp autocast|--autocast True
-grad_scaler| 使用grad_scale | --grad_scale True
+autocast|开启AMP训练|--autocast True
+grad_scale| 开启梯度缩放 | --grad_scale True
 checkpoint_path| 预训练权重路径 | --checkpoint_path path/to/bert_base.pt
 warm_up| warm_up比例 | --warm_up 0.1
 max_seq_length|输入的最大句子长度| --max_seq_length 384
