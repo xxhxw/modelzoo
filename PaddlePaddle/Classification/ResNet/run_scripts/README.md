@@ -6,7 +6,7 @@ epoch| 训练轮次，和训练步数冲突。 | --epoch 50
 step | 训练步数，和训练轮数冲突。 | --step 1
 batch_size/bs | 每个rank的batch_size。 | --batch_size 32 / --bs 32
 dataset_path | 数据集路径。 | --dataset_path
-nproc_per_node | DDP时，每个node上的rank数量。不输入时，默认为1，表示单核运行。 | --nproc_per_node 4
+nproc_per_node | DDP时，每个node上的rank数量。不输入时，默认为1，表示单SPA运行。 | --nproc_per_node 4
 nnode | DDP时，node数量。不输入时，默认为1，表示单机运行。| --nnode 2
 node_rank|多机时，node的序号。|--node_rank 0
 master_addr|多机时，主节点的IP地址。|--master_addr 127.0.0.1
