@@ -53,6 +53,7 @@ if __name__ == '__main__':
     master_addr = args.master_addr
     master_port = args.master_port
     early_stop = args.early_stop
+    fp64 = args.precision_align
     
     
     project_path = str(Path(__file__).resolve().parents[1])
@@ -92,12 +93,7 @@ if __name__ == '__main__':
     if precision_align_log_path is not None:
         os.environ['PD_PRECISION_TOOL_LOG'] = precision_align_log_path
     
-    if nnode == 1 and nproc_per_node>1:
-        device_list = [str(i) for i in range(nproc_per_node)]
-        device_list = ','.join(device_list)
-        cmd = f'{paddle_sdaa_env} \
-             {env} python -m paddle.distributed.launch {project_path}/tools/train.py \
-            -c  {yaml_path} \
+    hyper_parameters = f'\
             -o  DataLoader.Train.sampler.batch_size={bs} \
             -o  Global.device={device} \
             -o  Arch.data_format="NHWC" \
@@ -115,90 +111,28 @@ if __name__ == '__main__':
             -o  DataLoader.Train.loader.num_workers={num_workers} \
             -o  Global.profiler={profiler} \
             -o  Global.profiler_path={profiler_path} \
+            -o  Global.precision_align={precision_align} \
+            -o  Global.FP64={fp64} \
+            -o  Global.precision_align_path={precision_align_cuda_path} \
+            '
+
+
+    if nnode == 1 and nproc_per_node>1:
+        cmd = f'{paddle_sdaa_env} \
+             {env} python -m paddle.distributed.launch {project_path}/tools/train.py \
+            -c  {yaml_path} \
+            {hyper_parameters} \
             '
     elif nnode>1:
-        device_list = [str(i) for i in range(nproc_per_node)]
-        device_list = ','.join(device_list)
         cmd = f'{paddle_sdaa_env} \
             {env} python -m paddle.distributed.launch --ips={master_addr} {project_path}/tools/train.py \
             -c  {yaml_path} \
-            -o  DataLoader.Train.sampler.batch_size={bs} \
-            -o  Global.device={device} \
-            -o  Arch.data_format="NHWC" \
-            -o  Global.print_batch_step=1 \
-            -o  Global.epochs={epoch} \
-            -o  Global.prof={step} \
-            -o  Optimizer.lr.learning_rate={lr} \
-            -o  Optimizer.lr.warmup_epoch={warmup} \
-            -o  Global.eval_during_train={eval_during_train} \
-            -o  DataLoader.Train.dataset.image_root={data_path} \
-            -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
-            -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
-            -o  Global.early_stop={early_stop} \
-            -o  DataLoader.Train.loader.num_workers={num_workers} \
-            '
-    elif profiler :
-        cmd = f' HIGH_PERFORMANCE_CONV=1  SDAA_LAUNCH_BLOCKING=1 CUDA_LAUNCH_BLOCKING=1 \
-            {env} python  {project_path}/tools/train.py \
-            -c   {yaml_path} \
-            -o  DataLoader.Train.sampler.batch_size={bs} \
-            -o  Global.device={device} \
-            -o  Arch.data_format="NHWC" \
-            -o  Global.print_batch_step=1 \
-            -o  Global.epochs={epoch} \
-            -o  Global.prof={step} \
-            -o  Optimizer.lr.learning_rate={lr} \
-            -o  Optimizer.lr.warmup_epoch={warmup} \
-            -o  Global.eval_during_train={eval_during_train} \
-            -o  Global.profiler=True \
-            -o  Global.profiler_path={profiler_path} \
-            -o  DataLoader.Train.dataset.image_root={data_path} \
-            -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
-            -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
-            -o  DataLoader.Train.loader.num_workers={num_workers} \
-         '
-    elif precision_align:
-        cmd = f' {env} python  {project_path}/tools/train.py \
-            -c   {yaml_path} \
-            -o  DataLoader.Train.sampler.batch_size={bs} \
-            -o  Global.device=cpu \
-            -o  Arch.data_format="NHWC" \
-            -o  Global.print_batch_step=1 \
-            -o  Global.epochs={epoch} \
-            -o  Global.prof={step} \
-            -o  Optimizer.lr.learning_rate={lr} \
-            -o  Optimizer.lr.warmup_epoch={warmup} \
-            -o  Global.eval_during_train={eval_during_train} \
-            -o  Global.precision_align={precision_align} \
-            -o  Global.FP64=True \
-            -o  Global.precision_align_path={precision_align_cuda_path} \
-            -o  DataLoader.Train.dataset.image_root={data_path} \
-            -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
-            -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
-            -o  DataLoader.Train.loader.num_workers={num_workers} \
+            {hyper_parameters} \
             '
     else:
-        cmd = f' HIGH_PERFORMANCE_CONV=1  \
-            {env} python  {project_path}/tools/train.py \
+        cmd = f' {env} python  {project_path}/tools/train.py \
             -c   {yaml_path} \
-            -o  DataLoader.Train.sampler.batch_size={bs} \
-            -o  Global.device={device} \
-            -o  Arch.data_format="NHWC" \
-            -o  Global.print_batch_step=1 \
-            -o  Global.epochs={epoch} \
-            -o  Global.prof={step} \
-            -o  Optimizer.lr.learning_rate={lr} \
-            -o  Optimizer.lr.warmup_epoch={warmup} \
-            -o  Global.eval_during_train={eval_during_train} \
-            -o  DataLoader.Train.dataset.image_root={data_path} \
-            -o  DataLoader.Train.dataset.cls_label_path={data_path}/train_list.txt \
-            -o  DataLoader.Eval.dataset.image_root={data_path} \
-            -o  DataLoader.Eval.dataset.cls_label_path={data_path}/val_list.txt \
-            -o  Global.early_stop={early_stop} \
-            -o  DataLoader.Train.loader.num_workers={num_workers} \
+            {hyper_parameters} \
             '
     print('本次运行命令',cmd)
     os.system(cmd)
