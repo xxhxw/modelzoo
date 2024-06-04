@@ -27,11 +27,12 @@
 from argument import parse_args ,check_argument
 import os
 from pathlib import Path
+from formate_cmd import print_formatted_cmd
 
 if __name__ == '__main__':
     args = parse_args()
     args = check_argument(args)
-    
+
     model_name = args.model_name
     epoch = args.epoch
     step = args.step
@@ -39,37 +40,41 @@ if __name__ == '__main__':
     data_path = args.dataset_path
     nproc_per_node = args.nproc_per_node
     nnode = args.nnode
+    precision_align = args.precision_align
+    precision_align_cuda_path = args.precision_align_cuda_path
+    precision_align_log_path = args.precision_align_log_path
     lr = args.lr
     num_workers = args.num_workers
     device = args.device
+    profiler = args.profiler
+    profiler_path = args.profiler_path
     autocast = args.autocast
     grad_scale = args.grad_scale
     node_rank = args.node_rank
     master_addr = args.master_addr
     master_port = args.master_port
     early_stop = args.early_stop
+    mlperf = args.mlperf_mode
     warmup = args.warm_up
     max_seq_length = args.max_seq_length
     ckpt_path = args.checkpoint_path
-    do_eval = args.do_eval
 
     global_batch_size = bs * nproc_per_node * nnode
-    
-    
+
+
     project_path = str(Path(__file__).resolve().parents[1])
-    
-    if nnode > 1:
-        raise Exception("Recent task do not support nnode > 1. Set --nnode=1 !")
-    
-    if nnode == 1 and nproc_per_node>1:
-        cmd = f'torchrun --nproc_per_node {nproc_per_node} --master_port {master_port} {project_path}/pipeline/run_thucnews.py \
-            --bert_model {model_name} \
-            --output_dir ./log/thucnews \
+
+    if precision_align_log_path is not None:
+        os.environ['PT_PRECISION_TOOL_LOG'] = precision_align_log_path
+
+    hpyper_params=f'--bert_model {model_name} \
+            --output_dir ./log/tnews \
             --init_checkpoint {ckpt_path} \
             --data_dir {data_path} \
             --max_seq_length {max_seq_length} \
             --task_name sst-2 \
             --do_train \
+            --do_eval \
             --train_batch_size={bs} \
             --learning_rate {lr} \
             --max_steps {step} \
@@ -82,34 +87,27 @@ if __name__ == '__main__':
             --do_lower_case \
             --gradient_accumulation_steps 1\
             --config_file ./bert_configs/thucnews.json'
+
+    # check
+    if precision_align:
+        raise Exception("Recent task do not support precision align. Set --precision_align=False !")
+
+    if profiler:
+        raise Exception("Recent task do not support profiler. Set --profiler=False !")
+
+    if nnode > 1:
+        raise Exception("Recent task do not support nnode > 1. Set --nnode=1 !")
+
+    if nnode == 1 and nproc_per_node>1:
+        cmd = f'SDAA_BERT_HIGHPERF=1 torchrun --nproc_per_node {nproc_per_node} {project_path}/pipeline/run_thucnews.py \
+            {hpyper_params}'
         if autocast:
             cmd += ' --amp'
-        if do_eval:
-            cmd += ' --do_eval'
     else:
-        cmd = f'python {project_path}/pipeline/run_thucnews.py \
-            --bert_model {model_name} \
-            --output_dir ./log/thucnews \
-            --init_checkpoint {ckpt_path} \
-            --data_dir {data_path} \
-            --max_seq_length {max_seq_length} \
-            --task_name sst-2 \
-            --max_steps {step} \
-            --do_train \
-            --train_batch_size={bs} \
-            --learning_rate {lr} \
-            --num_train_epochs {epoch} \
-            --warmup_proportion {warmup} \
-            --seed 666 \
-            --device {device} \
-            --loss_scale 65536 \
-            --vocab_file ./vocab/bert_base_chinese_vocab.txt \
-            --do_lower_case \
-            --gradient_accumulation_steps 1 \
-            --config_file ./bert_configs/thucnews.json'
+        cmd = f'SDAA_BERT_HIGHPERF=1 python {project_path}/pipeline/run_thucnews.py \
+            {hpyper_params}'
         if autocast:
             cmd += ' --amp'
-        if do_eval:
-            cmd += ' --do_eval'
-    
+
+    print_formatted_cmd(cmd)
     os.system(cmd)

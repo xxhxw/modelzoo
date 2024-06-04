@@ -24,7 +24,6 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-import torch
 import argparse
 from argparse import ArgumentParser,ArgumentTypeError
 import sys
@@ -41,15 +40,17 @@ def str2bool(v):
         raise ArgumentTypeError(
             f"Truthy value expected: got {v} but expected one of yes/no, true/false, t/f, y/n, 1/0 (case insensitive)."
         )
-    
+
 def parse_args():
     parser = ArgumentParser(description='modelzoo')
-    parser.add_argument('--model_name', required=True,
+    parser.add_argument('--model_name', required=False,
                         default='bert-base-uncased', type=str, help='name of the model')
     parser.add_argument('--epoch', required=False, default=1,
                         type=int, help='number of total epochs to run')
     parser.add_argument('--step', required=False, default=-1,
                         type=int, help='run only N iterations')
+    parser.add_argument('--eval_step', required=False, default=100,
+                        type=int, help='num of step for eval')
     parser.add_argument('--batch_size','--bs' ,required=True, default=64,
                         type=int, help='mini-batch size (default: 64) per device')
     parser.add_argument('--dataset_path', required=True,
@@ -72,29 +73,40 @@ def parse_args():
                         help="Master node (rank 0)'s free port that needs to "
                         "be used for communciation during distributed "
                         "training")
-    parser.add_argument('--lr', "--learning-rate", required=True,
+    parser.add_argument('--precision_align', default=False,
+                        type=str2bool, help='do precision align')
+    parser.add_argument('--precision_align_cuda_path', default=None,
+                        type=str, help='path to cuda data of the precision_align')
+    parser.add_argument('--precision_align_log_path',  default=None,
+                        type=str, help='path to output of the precision_align')
+    parser.add_argument('--lr', "--learning-rate", required=False,
                         default=0.1, type=float, help='initial learning rate')
     parser.add_argument('--num_workers', default=2, type=int,
                         help='number of data loading workers ')
     parser.add_argument('--device', required=True, default='cpu', type=str,
                         help='which device to use. cpu, cuda, sdaa optional, cpu default')
+    parser.add_argument("--profiler", default=False,
+                        type=str2bool, help="run profiler")
     parser.add_argument("--autocast", default=False,
                         type=str2bool, help="open autocast for amp")
+    parser.add_argument("--do_predict", default=False,
+                        type=str2bool, help="do predict or not")
     parser.add_argument("--grad_scale", default=False,
                         type=str2bool, help="open grads_cale for amp")
+    parser.add_argument("--profiler_path", default=False,
+                        type=str, help="profiler save path")
     parser.add_argument("--early_stop", default=-1,
                         type=int, help="early stop")
     parser.add_argument("--max_seq_length", default=512,
                         type=int, help="Max seq length of input sentence.")
     parser.add_argument("--checkpoint_path", default=None,
                         type=str, help="Path of BERT base pretrain checkpoint.")
-    
+    parser.add_argument("--pretrained_path", default=None,
+                        type=str, help="Path of BERT base pretrain checkpoint.")
+    parser.add_argument("--mlperf_mode", default=False,
+                            type=str2bool, help="whether to use mlperf mode")
     parser.add_argument("--warm_up", default=0.0,
                             type=float, help="whether to use warm up")
-    parser.add_argument("--do_eval", default=False,
-                            action='store_true', help="whether to do eval")
-    parser.add_argument("--do_predict", default=False,
-                            action='store_true', help="whether to do eval")
 
     return parser.parse_args()
 
@@ -103,8 +115,16 @@ def check_argument(args):
     if args.step>0 and args.epoch>1:
         args.epoch=1
         warnings.warn('argument step and epoch is conflict, when step is used, epoch will be set to 1')
+    if args.nproc_per_node >1 and args.nnode >1 and args.precision_align:
+        warnings.warn('precision_align only for single device')
+        sys.exit(0)
+    if args.precision_align and not (args.precision_align_cuda_path and args.precision_align_log_path):
+        warnings.warn('please pass the full argument for precision_align')
+        sys.exit(0)
+    if args.precision_align and args.autocast:
+        warnings.warn('precision_align are not support with amp training')
     return args
-    
+
 
 if __name__ == '__main__':
     sys.exit(0)

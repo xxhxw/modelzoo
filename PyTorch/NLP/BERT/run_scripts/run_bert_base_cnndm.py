@@ -27,11 +27,12 @@
 from argument import parse_args ,check_argument
 import os
 from pathlib import Path
+from formate_cmd import print_formatted_cmd
 
 if __name__ == '__main__':
     args = parse_args()
     args = check_argument(args)
-    
+
     model_name = args.model_name
     epoch = args.epoch
     step = args.step
@@ -51,60 +52,47 @@ if __name__ == '__main__':
     warmup = args.warm_up
     max_seq_length = args.max_seq_length
     ckpt_path = args.checkpoint_path
-    do_predict = args.do_predict
-
+    do_predict= args.do_predict
     global_batch_size = bs * nproc_per_node * nnode
-    
-    
+
+
     project_path = str(Path(__file__).resolve().parents[1])
-    
-    
+
+    hpyer_params=f'--bert_model {model_name} \
+            --bert_model {model_name} \
+            --output_dir ./log/cnndm \
+            --init_checkpoint {ckpt_path} \
+            --train_file={data_path}/cnndm \
+            --predict_file={data_path}/cnndm \
+            --max_seq_length {max_seq_length} \
+            --do_train \
+            --train_batch_size={bs} \
+            --predict_batch_size={bs} \
+            --learning_rate {lr} \
+            --warmup_proportion {warmup} \
+            --seed 666 \
+            --max_steps {step} \
+            --device {device} \
+            --loss_scale 65536 \
+            --config_file ./bert_configs/base.json'
+
     if nnode > 1:
         raise Exception("Recent task do not support nnode > 1. Set --nnode=1 !")
-    
+
     if nnode == 1 and nproc_per_node>1:
-        cmd = f'torchrun --nproc_per_node {nproc_per_node} --master_port {master_port} {project_path}/pipeline/run_cnndm.py \
-            --bert_model {model_name} \
-            --output_dir ./log/cnndm \
-            --init_checkpoint {ckpt_path} \
-            --train_file={data_path}/cnndm \
-            --predict_file={data_path}/cnndm \
-            --max_seq_length {max_seq_length} \
-            --do_train \
-            --train_batch_size={bs} \
-            --predict_batch_size={bs} \
-            --learning_rate {lr} \
-            --warmup_proportion {warmup} \
-            --seed 666 \
-            --max_steps {step} \
-            --device {device} \
-            --loss_scale 65536 \
-            --config_file ./bert_configs/base.json'
+        cmd = f'SDAA_RUNTIME_AUTOFALLBACK=1 SDAA_FALLBACK_OPS=index,_index_put_impl_ torchrun --nproc_per_node {nproc_per_node} --master-port 29505 {project_path}/pipeline/run_cnndm.py \
+            {hpyer_params}'
         if autocast:
             cmd += ' --amp'
-        if do_predict: 
+        if do_predict:
             cmd += ' --do_predict'
     else:
-        cmd = f'python {project_path}/pipeline/run_cnndm.py \
-            --bert_model {model_name} \
-            --output_dir ./log/cnndm \
-            --init_checkpoint {ckpt_path} \
-            --train_file={data_path}/cnndm \
-            --predict_file={data_path}/cnndm \
-            --max_seq_length {max_seq_length} \
-            --do_train \
-            --train_batch_size={bs} \
-            --predict_batch_size={bs} \
-            --learning_rate {lr} \
-            --warmup_proportion {warmup} \
-            --seed 666 \
-            --max_steps {step} \
-            --device {device} \
-            --loss_scale 65536 \
-            --config_file ./bert_configs/base.json'
+        cmd = f'SDAA_RUNTIME_AUTOFALLBACK=1 SDAA_FALLBACK_OPS=index,_index_put_impl_ python {project_path}/pipeline/run_cnndm.py \
+            {hpyer_params}'
         if autocast:
             cmd += ' --amp'
-        if do_predict: 
+        if do_predict:
             cmd += ' --do_predict'
-    
+
+    print_formatted_cmd(cmd)
     os.system(cmd)
