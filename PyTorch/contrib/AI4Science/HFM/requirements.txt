@@ -1,6 +1,0 @@
-Cython
-numpy
-scipy
-matplotlib
-imageio
-memory-profiler
