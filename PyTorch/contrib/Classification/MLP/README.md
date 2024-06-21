@@ -32,7 +32,7 @@ MNIST数据集可以通过运行的代码自行下载无须提前准备
    ```
 
    ```
-   conda activate teco-pytorch
+   conda activate torch_env
    ```
 
    
