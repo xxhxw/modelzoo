@@ -6,27 +6,37 @@
 
 ## 仓库介绍
 
-ModelZoo仓库包含2个子仓库，包含Pytorch、PaddlePaddle，您可以直接克隆本仓库，或者分别克隆需要的子仓库，并根据子仓库的README指引进行使用。
+ModelZoo仓库包含2个子仓库，包含Pytorch、PaddlePaddle、TecoInference，您可以直接克隆本仓库，或者分别克隆需要的子仓库，并根据子仓库的README指引进行使用。
 
 
 | 子仓库  | 说明 |
 | ------------- | ------------- |
 | [PyTorch](./PyTorch) | 基于PyTorch-SDAA框架的训练模型集合 |
 | [PaddlePaddle](./PaddlePaddle) | 基于PaddlePaddle-SDAA框架的训练模型集合 |
+| [TecoInference](./TecoInference) | 基于TecoInferenceEngine框架的推理模型集合 |
 
 
+## 模型训练支持列表和链接
 
-## 模型支持列表和链接
-
-| MODELS | Type | Train Mode |Distributed Train|
+| 模型 | 类型 | 训练模式 |是否使用分布式训练|
 | ------------- | ------------- | ------------- | ------------- |
-| [ResNet](./PaddlePaddle/Classification/ResNet) | 图像分类 |AMP|YES
-| [BERT](./PyTorch/NLP/BERT) | 自然语言处理 | AMP | YES
+| [ResNet](./PaddlePaddle/Classification/ResNet) | 图像分类 |AMP|是
+| [BERT](./PyTorch/NLP/BERT) | 自然语言处理 | AMP | 是
 
+## 模型推理支持列表和链接
+
+| 模型 | 推理卡数 |精度模式|
+| ------------- | ------------- | ------------- |
+| [ResNet](./TecoInference/example/classification/resnet/README.md) |单卡|FP16
 
 ## 发版记录
+
+V1.1.0：
+* 新增ResNet推理模型
+
 V 1.0.0：
-* 新增ResNet和BERT模型
+* 新增ResNet和BERT训练模型。
+
 
 
 ## 免责声明
