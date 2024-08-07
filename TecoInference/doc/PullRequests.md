@@ -117,7 +117,8 @@
 建议工作分支名称命名为`contrib/<开发者团队名称>/<模型名称>`，例如`contrib/jiangnan_university_ailab/resnet`。
 
 - PR标题：请在PR标题前标注活动名称，开发者团队名称及适配的内容。
-如：【生态活动】元碁智汇·定义未来-团队名称-适配内容
+
+    如：【生态活动】元碁智汇·定义未来-江南大学AILAB-模型推理-在TecoInferenceEngine框架上适配ResNet50模型
 
 - PR内容：需要包括如下具体信息：
     - 当前适配的软件栈版本：在`python`中`import tvm`即可打印当前软件栈版本，以截图的方式提供即可。

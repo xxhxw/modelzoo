@@ -92,7 +92,7 @@
 
 - PR标题：请在PR标题前标注活动名称，开发者团队名称及适配的内容。
 
-    例如参与[【生态活动】元碁智汇·定义未来](https://gitee.com/tecorigin/teco-torch/issues/I9HG17?from=project-issue)时，标题请参考 **【生态活动】元碁智汇·定义未来-江南大学AILAB-在PyTorch框架上支持resnet50在imagenet上的训练**
+    例如参与[【生态活动】元碁智汇·定义未来](https://gitee.com/tecorigin/modelzoo/issues/IAHGWN?from=project-issue)时，标题请参考 **【生态活动】元碁智汇·定义未来-江南大学AILAB-模型训练-在PyTorch框架上支持resnet50在imagenet上的训练**
 
 - PR内容：PR内容应当包括如下具体信息：
     - 当前适配的软件栈版本：在python中import torch_sdaa/paddle_sdaa即可打印当前软件栈版本，以截图的方式提供即可。
@@ -104,7 +104,7 @@
         -  如果为短训，请提供loss曲线图和最终的loss结果。
     - README自测结果：确定README已经通过自测，非开发者可以通过README运行此次PR内容。
 
-具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-江南大学AILAB-在PyTorch框架上支持resnet50在imagenet上的训练【请勿合入，仅作为PR模板进行展示】](https://gitee.com/tecorigin/modelzoo/pulls/10)
+具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-江南大学AILAB-模型训练-在PyTorch框架上支持resnet50在imagenet上的训练【请勿合入，仅作为PR模板进行展示】](https://gitee.com/tecorigin/modelzoo/pulls/10)
 
 ## 编程规范
 - Python代码遵循[PEP8](https://peps.python.org/pep-0008/)规范。
