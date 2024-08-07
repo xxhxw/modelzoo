@@ -1,190 +1,146 @@
 # 模型推理适配指南
-## 1. 前期准备
-适配之前需要确认源码、模型和数据集，具体流程如下：
-1. 确认适配的源码，源码优先级：指定源码>官方源码>第三方开源>个人开源。
-2. 确认适配的模型具体信息，例如resnet有多个系列，应明确是哪一个版本和输入shape，例如：resnet50：input_shape:224x224，batch_size:1~128。
+
+本文档介绍如何适配推理模型，使其能够在太初加速卡进行推理。整体流程如下：
+
+1. 检查推理环境：使用Tecorgin ModelZoo进行推理适配前，检查Tecorgin ModelZoo的开发环境，确保您的开发环境能够充分满足当前任务需求。
+
+2. 适配模型推理：对模型源码、推理相关接口等进行适配，使模型能够基于Tecorgin ModelZoo提供的环境进行推理。
+
+3. 添加Readme文件：基于适配的模型推理文件和代码，编写模型推理使用说明。
+
+4. 提交PR：完成所有适配测试并通过后，将代码提交到Tecorigin ModelZoo仓库。
+
+   
+
+## 1. 检查推理环境
+
+在使用Tecorgin ModelZoo进行推理适配之前，建议您先熟悉Tecorgin ModelZoo的开发环境配置，包括熟悉模型开发使用的框架、加速卡等硬件资源信息，以确保您的开发环境能够充分满足当前任务的需求，从而确保适配及推理过程的顺利进行。
+
+本节介绍如何检查Tecorign ModelZoo的开发环境，包括硬件环境检查和容器环境检查。
+
+
+
+### 1.1 检查硬件基本信息
+
+使用`teco-smi`命令查看太初加速卡的硬件信息，了解当前可用的T1计算设备以及设备的工作状态。
+
+```
+(torch_env) root@DevGen03:/softwares# teco-smi
+Wed Jun  5 02:46:48 2024
++-----------------------------------------------------------------------------+
+|  TCML: 1.10.0        SDAADriver: 1.1.2b1        SDAARuntime: 1.1.2b0        |
+|-------------------------------+----------------------+----------------------|
+| Index  Name                   | Bus-Id               | Health      Volatile |
+|        Temp          Pwr Usage|          Memory-Usage|             SPE-Util |
+|=============================================================================|
+|   0    TECO_AICARD_01         | 00000000:01:00.0     | OK                   |
+|        35C                90W |        0MB / 15296MB |                   0% |
+|-------------------------------+----------------------+----------------------|
+|   1    TECO_AICARD_01         | 00000000:01:00.0     | OK                   |
+|        35C                90W |      165MB / 15296MB |                   0% |
+|-------------------------------+----------------------+----------------------|
+|   2    TECO_AICARD_01         | 00000000:01:00.0     | OK                   |
+|        35C                90W |      165MB / 15296MB |                   0% |
+|-------------------------------+----------------------+----------------------|
+|   3    TECO_AICARD_01         | 00000000:01:00.0     | OK                   |
+|        35C                90W |      165MB / 15296MB |                   0% |
++-------------------------------+----------------------+----------------------+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  Tcaicard     PID      Process name                            Memory Usage |
+|=============================================================================|
+|     1       76262      python3.8                                     165 MB |
+|     2       76263      python3.8                                     165 MB |
+|     3       76264      python3.8                                     165 MB |
++-----------------------------------------------------------------------------+
+```
+
+检查硬件信息时，您可以重点关注以下字段内容：
+
+- Memory-Usage：T1计算设备内存使用状态。格式：使用内存 / 总内存。
+
+- Health： T1计算设备的健康状态。``OK``表示T1计算设备运行正常；如果出现`DEVICE_LOST`、`HEARTBEAT_ERROR`等异常信息，请联系太初技术支持团队获取帮助。
+
+- SPE-Util：T1计算设备计算核心SPE的使用率。如果出现`N/A`，表示T1芯片出现掉卡问题，请联系太初技术支持团队获取帮助。
+
+  
+
+### 1.2 检查容器软件信息
+
+为便于您能够快速使用Tecorigin ModelZoo执行推理任务，Tecorigin ModelZoo当前以Docker容器的方式提供服务，Docker容器已经包含使用所需的所有基础软件及TecoinferenceEngine（小模型）推理框架。在安装Docker后，您可以按照以下步骤查看容器中的相关软件信息。
+
+1. 在容器中，执行以下命令，查看Conda基础环境信息。
+
+   ```
+   (base) root@DevGen03:/softwares# conda info -e 
+   ```
+
+   如果环境中包含`tvm-build`信息，表示基础环境正常。示例如下：
+
+   ``` 
+    # conda environments:
+    base                  *  /root/miniconda3
+    paddle_env               /root/miniconda3/envs/paddle_env
+    torch_env                /root/miniconda3/envs/torch_env
+    tvm-build                /root/miniconda3/envs/tvm-build
+   ```
+
+2. 进入Conda环境，执行以下命令，查看TecoinferenceEngine（小模型）框架及其依赖组件信息。
+
+   ```
+   (base) root@DevGen03:/softwares# conda activate tvm-build 
+   (torch_env) root@DevGen03:/softwares# python -c "import tvm"
+   ```
+
+   如果终端成功输出TecoinferenceEngine（小模型）框架及其依赖组件的版本，表示TecoinferenceEngine（小模型）运行正常。示例如下：
+
+   ```
+   python -c "import tvm"
+   
+   # 输出以下内容
+   ---------------+---------------------------------------------
+   Host IP        | xx.xx.xx.xx
+   ---------------+---------------------------------------------
+   Teco-infer     | 1.2.0rc0+git8b22872
+   TecoDNN        | 1.20.0
+   TecoBLAS       | 1.20.0
+   TecoCustom     | 1.20.0
+   TECOCC         | 1.11.0
+   SDAA Runtime   | 1.2.0
+   SDAA Driver    | 1.2.0
+   ---------------+---------------------------------------------
+    
+   ```
+
+
+
+## 2. 模型推理适配
+
+### 2.1 适配前准备
+
+#### 2.1.1 检查源码、模型和数据集
+
+适配之前需要检查源码、模型和数据集，确保其满足适配要求。具体流程如下：
+
+1. 根据以下源码优先级，选择合适的源码：太初指定的源码 > 官方源码 > 第三方开源 > 个人开源。
+
+2. 确认适配模型的具体信息，例如：ResNet有多个系列，应明确适配哪一个版本、其输入shape和batch size信息。以适配ResNet50模型为例：`resnet50：input_shape:224x224，batch_size:1~128`。
+
 3. 确认需要适配的数据集和对应的metric指标。
-4. 在PyTorch/PaddlePaddle的cpu或gpu环境复现源码提供的metric指标，确保源码、模型和数据集的准确无误。
 
-## 2. 推理环境准备
-### 2.1 docker容器环境
-当前提供的环境已经包含所有的基础环境及推理框架(TecoinferenceEngine)、onnx等环境，用户根据算法需求安装x86其他依赖即可。
+4. 在PyTorch/PaddlePaddle的CPU或GPU环境复现源码提供的metric指标，确保源码、模型和数据集的准确无误。
 
-执行以下命令进行 TecoinferenceEngine 基础环境验证。
-```
-python -c "import tvm"
+   
 
-# 输出以下内容
----------------+---------------------------------------------
-Host IP        | xx.xx.xx.xx
----------------+---------------------------------------------
-Teco-infer     | 1.2.0rc0+git8b22872
-TecoDNN        | 1.20.0
-TecoBLAS       | 1.20.0
-TecoCustom     | 1.20.0
-TECOCC         | 1.11.0
-SDAA Runtime   | 1.2.0
-SDAA Driver    | 1.2.0
----------------+---------------------------------------------
-```
+#### 2.1.2 Fork ModelZoo仓库
 
-以下onnx和TensortRT环境安装供参考。
+基于Tecorigin ModelZoo仓库进行推理模型适配，首先需要您将[Tecorigin ModelZoo官方仓库](https://gitee.com/tecorigin/modelzoo)fork到您的个人空间，基于您的个人空间进行操作。关于如何Fork仓库，请查阅gitee官方使用文档：[Fork+PullRequest 模式](https://help.gitee.com/base/%E5%BC%80%E5%8F%91%E5%8D%8F%E4%BD%9C/Fork+PullRequest%E6%A8%A1%E5%BC%8F)。
 
-### 2.2 ONNX环境（可选）
-```
-onnx>=1.12.0
-onnxsim			# 用于简化模型
-onnxruntime	# 用于测试onnx推理
-onnxconverter_common	# 用于将模型权重转为float16格式
 
-# for torch model
-torch>=1.12.0
 
-# for paddle model
-paddlepaddle
-paddle2onnx
-```
+#### 2.1.3 创建目录
 
-### 2.3 TensortRT环境（可选）
-
-1. 获取TensorRT压缩包
-    在官网下载TensorRT-8.6.0.12.Linux.x86_64-gnu.cuda-11.8.tar.gz
-
-2. 解压
-    ```
-    tar -xzvf TensorRT-8.6.0.12.Linux.x86_64-gnu.cuda-11.8.tar.gz
-    ```
-3. 添加环境变量
-    ```
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:xxx/TensorRT-8.6.0.12/lib
-    ```
-    其中xxx需要替换为TensorRT-8.6.0.12的路径。
-
-4. 安装
-    ```
-    cd TensorRT-8.6.0.12/python/
-    python3 -m pip install tensorrt-8.6.0-cp38-none-linux_x86_64.whl
-    ```
-    注意: paddle模型测试TensorRT需要更换GPU版本的paddle。
-
-## 3. 适配流程
-### 3.1 整体流程
-1. 根据第一章节内容完成前期准备，确保源码、模型和数据集的准确性，对齐评估指标。
-2. 将PyTorch或Paddle权重转换为onnx格式文件。
-3. 将源码中数据集加载、数据预处理、模型推理和后处理部分抽出，适配modelzoo推理接口和目录格式。
-4. 使用适配好的代码，测试onnxruntime-cpu推理，对齐官方评估指标，劣化相对误差不超过0.5%。
-5. 使用适配好的代码，测试TecoInferenceEngine推理，对齐onnxruntime-cpu评估指标，劣化相对误差不超过0.1%。
-6. 根据README样板，添加README文档。
-7. 根据PR提交规范提交代码。
-
-### 3.2 导出onnx
-注意：导出后的模型需要使用onnxsim进行简化，推荐动态shape导出。注意保存导出onnx的代码文件，后续需要提交到repo中。
-
-#### 3.2.1 Pytorch示例
-
-PyTorch模型权重转为onnx格式可参考如下代码：
-
-```
-import onnx
-import onnxsim		# 用于简化模型
-from onnxconverter_common import float16	# 用于将模型转为float16
-
-import torch
-import torchvision
-
-# init model
-resnet = torchvision.models.resnet50(pretrained=True)
-resnet.eval()
-
-# init dumpy_input
-dumpy_input = torch.randn(1, 3, 224, 224)
-
-# 静态shape导出
-torch.onnx.export(resnet,
-                  dummy_input,
-                  "resnet.onnx",
-                  opset_version=12,         	# ONNX opset版本
-                  input_names=['input'],    	# 输入名称
-                  output_names=['output'],  	# 输出名称
-                  do_constant_folding=True, 	# 是否执行常量折叠优化
-                  dynamic_axes=None,	# 是否使用动态shape，不使用默认为None
-                 )
-
-# 动态shape导出（推荐）
-dynamic_dims = {'input': {0: 'batch', 2: 'height', 3: 'width'},
-                'output': {0: 'batch'}}
-
-torch.onnx.export(resnet,
-                  dummy_input,
-                  "resnet_dyn.onnx",
-                  opset_version=12,         	# ONNX opset版本
-                  input_names=['input'],    	# 输入名称
-                  output_names=['output'],  	# 输出名称
-                  do_constant_folding=True, 	# 是否执行常量折叠优化
-                  dynamic_axes=dynamic_dims,	# 是否使用动态shape，不使用默认为None
-                 )
-
-# 以下动态静态均适用
-
-# Checks
-model_onnx = onnx.load("resnet_dyn.onnx")  # load onnx model
-onnx.checker.check_model(model_onnx)  # check onnx model
-
-# Simplify
-model_onnx, check = onnxsim.simplify(model_onnx)
-assert check, 'assert check failed'
-
-# convert_float_to_float16
-model_onnx = float16.convert_float_to_float16(model_onnx)
-onnx.save(model_onnx, "resnet_float16_dyn.onnx")
-```
-
-#### 3.2.2 Paddle示例
-PyTorch模型权重转为onnx格式可参考如下代码：
-```
-import onnx
-import onnxsim		# 用于简化模型
-from onnxconverter_common import float16	# 用于将模型转为float16
-
-import paddle
-from paddle.vision.models import resnet50
-
-# init model
-model = resnet50(pretrained=True)
-
-# 静态shape
-input_spec = [
-    paddle.static.InputSpec(
-        shape=[1, 3, 224, 224], dtype="float32"),
-]
-
-# 动态shape
-input_spec = [
-    paddle.static.InputSpec(
-        shape=[-1, 3, -1, -1], dtype="float32"),
-]
-paddle.onnx.export(model,
-                   "resnet.onnx",
-                   input_spec=input_spec,
-                   opset_version=12)
-
-# 以下动态静态均适用
-
-# Checks
-model_onnx = onnx.load("resnet.onnx")  # load onnx model
-onnx.checker.check_model(model_onnx)  # check onnx model
-
-# Simplify
-model_onnx, check = onnxsim.simplify(model_onnx)
-assert check, 'assert check failed'
-
-# convert_float_to_float16
-model_onnx = float16.convert_float_to_float16(model_onnx)
-onnx.save(model_onnx, "resnet_float16.onnx")
-```
-
-### 3.3 modelzoo代码适配
-modelzoo小模型推理目录结构如下：
+Tecorigin ModelZoo小模型推理子仓`TecoInference`的`contrib`目录是贡献者推理相关代码的工作目录，其目录结构如下：
 
 ```
 TecoInference/
@@ -214,94 +170,338 @@ TecoInference/
 │           │   └── __init__.py
 │           └── pytorch
 │               └── __init__.py
-├── doc
-│   ├── Environment.md          # 环境说明
-│   ├── Contributing.md         # 模型适配说明
-│   ├── 
-│   └── 
-├── Dockerfile
-├── engine
-│   ├── base.py
-│   ├── __init__.py
-│   ├── tecoinfer_paddle.py
-│   └── tecoinfer_pytorch.py
-├── example
-│   └── classification
-│       └── resnet		# 示例模型
-│           ├── example_multi_batch.py      # 文件夹推理
-│           ├── example_single_batch.py     # 单样本推理
-│           ├── example_valid.py            # 验证集推理评估
-│           ├── images
-│           │   ├── cat.png
-│           │   └── hen.jpg
-│           ├── README.md           # 模型使用说明
-│           └── requirements.txt    # 依赖文件
-├── README.md
-├── teco-inference-model-benchmark  # 性能测试使用的pass文件，禁止修改。
-├── tecoexec # 极限性能测试脚本
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── save_engine.py
-│   ├── testcase_configs
-│   │   └── tecoexec_config.yaml
-│   └── test_tecoexec.py
-└── utils # 数据集读取，预处理，后处理代码。
-    ├── datasets # 数据集读取
-    │   ├── image_classification_dataset.py
-    │   └──  __init__.py
-    ├── __init__.py
-    ├── postprocess # 后处理
-    │   ├── __init__.py
-    │   ├── paddle
-    │   │   └── __init__.py
-    │   └── pytorch
-    │       ├── classification.py
-    │       └── __init__.py
-    └── preprocess #
-        ├── __init__.py
-        ├── paddle
-        │   └── __init__.py
-        └── pytorch
-            ├── classification.py
-            └── __init__.py
+
 ```
 
-#### 3.3.1 适配内容
-参考[resnet](../example/classification/resnet/)与[utils](../utils/)，需要在`TecoInference/contrib/`目录下适配模型推理精度pipeline代码和对应的性能测试配置，具体如下:
+在您本地的Tecorigin ModelZoo仓库中，新建一个目录`TecoInference/contrib/example/<算法领域>/<模型名称>`，用于存放适配后的推理相关代码。其中：
+
+- 算法领域：当前有classification、detection、face、gnn、nlp、recommendation、reinforcement、segmentation和speech等，请您根据实际情况从中选择。
+- 模型名称：对应的模型名称。
+
+例如`GoogleNet`模型，其提交目录为：`TecoInference/contrib/example/classification/googlenet`。
+
+
+
+### 2.2 适配模型推理
+
+适配模型推理的主要流程如下：
+
+1. 导出ONNX模型：将PyTorch或PaddlePaddle框架上的模型保存为ONNX格式文件。
+2. 适配ModelZoo推理接口：将源码中的数据集加载、数据预处理、后处理部分、模型推理代码抽出，按照ModelZoo的目录格式和推理要求进行适配。
+3. 适配极限性能测试：随机初始化构造输入，获取模型特定`batch_size + shape`下的极限性能。
+4. 检查适配后的推理模型是否满足要求。
+
+
+
+#### 2.2.1 导出ONNX模型
+
+将PyTorch或PaddlePaddle框架上训练好的模型导出为ONNX格式的模型，推荐导出动态形状模型，导出后的模型需要使用`onnxsim`进行简化。
+
+##### 2.2.1.1 安装ONNX依赖
+
+导出ONNX格式的模型，需要安装一些ONNX依赖。具体依赖信息如下：
+
 ```
-# 目录：TecoInference/contrib/example/算法方向/算法名称
-├── demos						# 推理demo样本数据
-├── README.md					# README文档
-├── example_multi_batch.py		# 文件夹推理脚本
-├── example_single_batch.py		# 单个样本推理脚本
-├── example_valid.py			# 数据集推理脚本
-├── export_onnx.py					# onnx导出导出脚本
-└── requirements.txt			# 依赖
+onnx>=1.12.0
+onnxsim			# 用于简化模型
+onnxruntime	    # 用于测试onnx推理
+onnxconverter_common	# 用于将模型权重转为float16格式
 
-# 目录：TecoInference/contrib/utils, pytorch/paddle根据算法源码选择
-├──utils
-├── datasets
-│   └── 算法名称_dataset.py		# 数据集加载脚本
-├── postprocess
-│   ├── pytorch
-│   │   └── 算法名称.py			# 后处理脚本
-│		└── paddle
-└── preprocess
-    ├── pytorch
-    │   └── classification.py	# 预处理脚本
-    └── paddle
-# 目录：TecoInference/contrib/tecoexec/tecoexec_config.yaml 极限性能测试配置文件
+# for torch model
+torch>=1.12.0
+
+# for paddle model
+paddlepaddle
+paddle2onnx
 ```
 
-#### 3.3.2 推理pipeline适配说明
+将以上依赖保存到`requirement.txt`文件中，然后使用下命令，进行安装：
 
-pipeline适配主要包括`example_valid.py`、`example_single_batch.py`和`example_multi_batch.py`三个推理了文件。
+```
+pip install -r requirements.txt
+```
 
-注意：TecoinferenceEngine在太初卡上运行单卡三、四SPA推理时，会在每个SPA上初始化一份模型进行推理，因此模型初始化的`batch_size=单卡推理的batch_size / 单卡SPA数量`。例如，当推理pipeline传入的onnx文件的batch_size是16，那么实际运行单卡四SPA推理时，实际传入的input的batch_size需要设置为64。
+##### 2.2.1.2 导出ONNX模型
 
-下面针对需要适配的三个文件进行说明：
+- 从PyTorch导出ONNX格式模型
 
-`example_valid.py`：数据集推理代码，以下对关键内容进行说明，其余可以参考[resnet](../example/classification/resnet/example_valid.py)补充。
+  以ResNet50模型为例，可参考如下代码导出ONNX格式模型：
+
+  说明：将导出ONNX的代码保存为Python文件，后续需要提交到仓库中。
+
+  ```
+  import onnx
+  import onnxsim		# 用于简化模型
+  from onnxconverter_common import float16	# 用于将模型转为float16
+  
+  import torch
+  import torchvision
+  
+  # init model
+  resnet = torchvision.models.resnet50(pretrained=True)
+  resnet.eval()
+  
+  # init dumpy_input
+  dumpy_input = torch.randn(1, 3, 224, 224)
+  
+  # 静态shape导出
+  torch.onnx.export(resnet,
+                    dummy_input,
+                    "resnet.onnx",
+                    opset_version=12,         	# ONNX opset版本
+                    input_names=['input'],    	# 输入名称
+                    output_names=['output'],  	# 输出名称
+                    do_constant_folding=True, 	# 是否执行常量折叠优化
+                    dynamic_axes=None,	# 是否使用动态shape，不使用默认为None
+                   )
+  
+  # 动态shape导出（推荐）
+  dynamic_dims = {'input': {0: 'batch', 2: 'height', 3: 'width'},
+                  'output': {0: 'batch'}}
+  
+  torch.onnx.export(resnet,
+                    dummy_input,
+                    "resnet_dyn.onnx",
+                    opset_version=12,         	# ONNX opset版本
+                    input_names=['input'],    	# 输入名称
+                    output_names=['output'],  	# 输出名称
+                    do_constant_folding=True, 	# 是否执行常量折叠优化
+                    dynamic_axes=dynamic_dims,	# 是否使用动态shape，不使用默认为None
+                   )
+  
+  # 以下动态静态均适用
+  
+  # Checks
+  model_onnx = onnx.load("resnet_dyn.onnx")  # load onnx model
+  onnx.checker.check_model(model_onnx)  # check onnx model
+  
+  # Simplify
+  model_onnx, check = onnxsim.simplify(model_onnx)
+  assert check, 'assert check failed'
+  
+  # convert_float_to_float16
+  model_onnx = float16.convert_float_to_float16(model_onnx)
+  onnx.save(model_onnx, "resnet_float16_dyn.onnx")
+  ```
+
+- 从PaddlePaddle导出ONNX格式模型
+
+  以ResNet50模型为例，可参考如下代码导出ONNX格式模型：
+
+  说明：将导出ONNX的代码保存为Python文件，后续需要提交到仓库中。
+
+  ```
+  import onnx
+  import onnxsim		# 用于简化模型
+  from onnxconverter_common import float16	# 用于将模型转为float16
+  
+  import paddle
+  from paddle.vision.models import resnet50
+  
+  # init model
+  model = resnet50(pretrained=True)
+  
+  # 静态shape
+  input_spec = [
+      paddle.static.InputSpec(
+          shape=[1, 3, 224, 224], dtype="float32"),
+  ]
+  
+  # 动态shape
+  input_spec = [
+      paddle.static.InputSpec(
+          shape=[-1, 3, -1, -1], dtype="float32"),
+  ]
+  paddle.onnx.export(model,
+                     "resnet.onnx",
+                     input_spec=input_spec,
+                     opset_version=12)
+  
+  # 以下动态静态均适用
+  
+  # Checks
+  model_onnx = onnx.load("resnet.onnx")  # load onnx model
+  onnx.checker.check_model(model_onnx)  # check onnx model
+  
+  # Simplify
+  model_onnx, check = onnxsim.simplify(model_onnx)
+  assert check, 'assert check failed'
+  
+  # convert_float_to_float16
+  model_onnx = float16.convert_float_to_float16(model_onnx)
+  onnx.save(model_onnx, "resnet_float16.onnx")
+  ```
+
+
+
+#### 2.2.2 适配推理接口
+
+将源码中的数据集加载、数据预处理、后处理、模型推理模块抽出，按照`TecoInference/contrib`目录格式和推理要求进行适配。
+
+##### 2.2.2.1 适配数据集加载
+
+从源码中抽出数据集加载相关代码进行适配，将适配后的代码保存成Python文件，然后将Python文件放在`TecoInference/contrib/utils/datasets`目录下。以ResNet模型为例，适配后的数据集加载代码如下：
+
+```
+import torch
+import torchvision
+from pathlib import Path
+import os
+import glob
+from PIL import Image
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
+from functools import partial
+import numpy as np
+from torchvision.transforms.functional import InterpolationMode
+
+RANK = int(os.getenv('RANK', -1))
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1)) 
+
+def fast_collate(memory_format, batch):
+    imgs = [img[0] for img in batch]
+    targets = torch.tensor([target[1] for target in batch], dtype=torch.int64)
+    return imgs, targets
+
+def load_data(valdir, batch_size,rank=-1):
+    # Data loading code
+    print("Loading data")
+
+
+    dataset_test = torchvision.datasets.ImageFolder(
+        valdir,
+    )
+
+    rank = int(os.environ.get('OMPI_COMM_WORLD_RANK', rank))
+    world_size = int(os.environ.get('OMPI_COMM_WORLD_SIZE', 0))
+    
+    print("Creating data loaders")
+    if rank== -1:
+        test_sampler = torch.utils.data.SequentialSampler(dataset_test)
+    else:
+        test_sampler = torch.utils.data.distributed.DistributedSampler(dataset_test, shuffle=False,num_replicas=world_size, rank=rank)
+
+
+    data_loader_test = torch.utils.data.DataLoader(
+        dataset_test, batch_size=batch_size, sampler=test_sampler, num_workers=4, pin_memory=True,
+        collate_fn=partial(fast_collate, torch.contiguous_format),shuffle=(test_sampler is None),
+        drop_last=True ,
+    )
+    
+    return data_loader_test
+```
+
+##### 2.2.2.2 适配预处理
+
+从源码中抽出预处理相关代码进行适配，将适配后的代码保存成Python文件，然后将Python文件放在`TecoInference/contrib/utils/<框架>`目录下。其中：`框架`包含`paddle`和`pytorch`，请根据实际情况选择。
+
+以ResNet模型为例，适配后的预处理代码如下：
+
+```
+import os
+from PIL import Image
+import numpy as np
+import torch
+import torchvision.transforms as transforms
+
+
+def process(img, resize_shape=256, crop_shape=224):
+    img_transforms = transforms.Compose(
+        [transforms.Resize(resize_shape), transforms.CenterCrop(crop_shape), transforms.ToTensor()]
+    )
+    img = img_transforms(img)
+
+    with torch.no_grad():
+        # mean and std are not multiplied by 255 as they are in training script
+        # torch dataloader reads data into bytes whereas loading directly
+        # through PIL creates a tensor with floats in [0,1] range
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+        img = img.float()
+
+        input = img.unsqueeze(0).sub_(mean).div_(std)
+    input = input.numpy()
+    return input
+
+
+def preprocess(image_path, dtype='float16', resize_shape=256, crop_shape=224):
+    images = []
+    if isinstance(image_path, str):
+        if os.path.isfile(image_path):
+            img = process(Image.open(image_path), resize_shape, crop_shape)
+            images = [img]
+        else:
+            print("无法打开图片文件:", image_path)
+            return None
+    elif isinstance(image_path, Image.Image): #判断 Image 类型
+        img = process(image_path, resize_shape, crop_shape)
+        images = [img]
+    elif isinstance(image_path[0],str): #判断 [str] 类型
+        for i in image_path:
+            img = process(Image.open(image_path), resize_shape, crop_shape)
+            images.append(img)
+    elif isinstance(image_path[0],Image.Image): #判断 [Image] 类型
+        for i in image_path:
+            img = process(i, resize_shape, crop_shape)
+            images.append(img)
+    else:
+        print("输入有误")
+        return None
+    
+    images = np.vstack(images)
+    images = images.astype(np.float16) if dtype=='float16' else images.astype(np.float32)
+    return images
+```
+
+##### 2.2.2.3 适配后处理
+
+从源码中抽出后处理相关代码进行适配，将适配后的代码保存成Python文件，然后将Python文件放在`TecoInference/contrib/utils/<框架>`目录下。其中：`框架`包含`paddle`和`pytorch`，请根据实际情况选择。
+
+以ResNet模型为例，适配后的后处理代码如下：
+
+```
+import os
+import numpy as np
+from tvm.contrib.download import download_testdata
+
+
+def postprocess(model_outputs, target='sdaa', topk=1):
+    from scipy.special import softmax
+    if os.path.exists('/mnt/checkpoint/TecoInferenceEngine/image_classification/synset.txt'):
+        labels_path = '/mnt/checkpoint/TecoInferenceEngine/image_classification/synset.txt'
+    else:
+        labels_url = "https://s3.amazonaws.com/onnx-model-zoo/synset.txt"
+        labels_path = download_testdata(labels_url, "synset.txt", module="data")
+    
+    with open(labels_path, "r") as f:
+        labels = [l.rstrip() for l in f]
+
+    prec = []
+    trt = True if target not in ['sdaa', 'cpu', 'onnx'] else False
+    if trt:
+        model_outputs = model_outputs.numpy()
+    scores = softmax(model_outputs)
+    scores = np.squeeze(scores)
+    ranks = np.argsort(scores)[::-1]
+    for rank in ranks[0:topk]:
+        prec.append({'score':scores[rank],'label':labels[rank].split(' ',1)[1]})
+
+    return prec
+```
+
+##### 2.2.2.4 适配推理Pipeline
+
+推理pipeline适配主要包括`推理精度验证代码`、`单个样本推理代码`和`文件夹推理`三个部分：
+
+- `推理精度验证代码`：基于数据集中的验证数据集进行推理，测试使用ONNXRuntime-CPU或TecoInferenceEngine进行模型推理的精度。
+- `单个样本推理代码`：对单个图片或数据文件进行推理。
+- `文件夹推理`：对文件中的所有文件进行推理。
+
+注意：TecoinferenceEngine在太初卡上运行单卡三、四SPA推理时，会在每个SPA上初始化一份模型进行推理，因此模型初始化的`batch_size=单卡推理的batch_size/单卡SPA数量`。例如，当推理传入的ONNX文件的`batch_size`是16时，那么实际运行单卡四SPA推理时，实际传入的`batch_size`需要设置为64。
+
+######  2.2.2.4.1 适配推理精度验证代码
+
+在您创建的`TecoInference/contrib/example/<算法领域>/<模型名称>`目录下，创建`example_valid.py`文件，用于存放适配的推理精度验证代码。推理精度验证的关键代码及说明如下，完整的适配示例可参考ResNet模型的[example_valid.py](../example/classification/resnet/example_valid.py)。
 
 ```
 # 添加engine和utils路径
@@ -382,7 +582,9 @@ if __name__ == "__main__":
     print(f'summary: avg_sps: {np.mean(ips)}, e2e_time: {sum(e2e_time)}, avg_inference_time: {np.mean(run_time)}, avg_preprocess_time: {np.mean(pre_time)}, avg_postprocess: {np.mean(post_time)}')
 ```
 
-`example_single_batch.py`：单个样本推理(batch=1) ,以下对关键内容进行说明，其余可以参考[resnet](../example/classification/resnet/example_single_batch.py)补充。
+###### 2.2.2.4.2适配单样本推理代码
+
+在您创建的`TecoInference/contrib/example/<算法领域>/<模型名称>`目录下，创建`example_single_batch.py`文件，存放适配的单样本推理代码。单样本推理关键代码及说明如下，完整的适配示例可参考ResNet模型的[example_single_batch.py](../example/classification/resnet/example_valid.py)。
 
 ```
 # 添加engine和utils路径
@@ -425,7 +627,9 @@ if __name__ == "__main__":
     print(f"{demo_path}: {result}")
 ```
 
-`example_multi_batch.py`：文件夹推理(batch=1)，在单个样本推理的基础上添加文件遍历即可，可以参考[resnet](../example/classification/resnet/example_multi_batch.py)补充。。
+###### 2.2.2.4.3 适配文件夹推理代码
+
+在您创建的`TecoInference/contrib/example/<算法领域>/<模型名称>`目录下，创建`example_multi_batch.py`文件，存放适配的文件夹推理代码。相较于单个样本推理，在单个样本推理的基础上添加文件遍历即可。文件夹推理的关键代码及说明如下，完整的适配示例可参考ResNet模型的[example_multi_batch.py](../example/classification/resnet/example_multi_batch.py)。
 
 ```
 ......
@@ -435,14 +639,33 @@ if __name__ == "__main__":
 
     for file_name in os.listdir(opt.data_path):
         file_path = os.path.join(opt.data_path, file_name)
-
         input_data = load_data(file_path, demo_infer=True)
 
         ......
-```     
+```
 
-### 3.4 README文档添加
-文档格式可参考模板[resnet](../example/classification/resnet/README.md)，各章节需要严格对齐，必须包含以下内容：
+#### 2.2.3 适配极限性能测试
+
+极限性能测试通过随机初始化构造输入，获取模型特定`batch_size+shape`下的极限性能。适配极限性能测试包括适配极限性能执行脚本和极限性能测试配置信息。
+
+- 适配极限性能执行脚本：在`TecoInference/contrib/tecoexec/testcase_configs`目录下新建`test_tecoexec.py`文件，用于存放极限性能执行代码。极限性能执行代码可参考[极限性能测试模板](../tecoexec/test_tecoexec.py)。
+- 适配极限性能测试配置信息：在`TecoInference/contrib/tecoexec/testcase_configs`目录下新建`tecoexec_config.yaml`文件，用于存放极限性能测试配置信息。极限性能测试配置信息，请参考[极限性能测试配置模板](../tecoexec/testcase_configs/tecoexec_config.yaml)。
+
+适配完成后，参考[文档](../tecoexec/README.md)完成功能测试。
+
+#### 2.2.4 适配标准
+
+适配完成后需要完成推理精度验证和极限性能，且通过以下标准：
+
+- 推理精度：TecoInferenceEngine（小模型）推理的的metric结果和ONNXRuntime-CPU的metric结果相对误差不超过0.1%。
+
+- 极限性能：完成所有`batch_size`场景下的的性能测试。常用或源码默认的`batch_size`按照[1~max_batchsize]，逐渐增加batch size进行测试。例如：使用4个SPA时，shape中的`batch_size`为[1、4、8、16、......、521]。
+
+
+
+## 3. 添加README
+
+基于适配的模型推理文件和代码，编写模型推理使用说明。文档格式可参考模板[resnet](https://gitee.com/tecorigin/modelzoo/blob/main/TecoInference/example/classification/resnet/README.md)，各章节需要严格对齐，必须包含以下内容：
 
 ```
 # 算法名称
@@ -465,17 +688,8 @@ if __name__ == "__main__":
     提供数据集推理命令行、推理结果和推理结果说明（参考resnet/README.md）
 ```
 
-### 3.5 极限性能测试
-功能说明：随机初始化构造输入，获取模型特定batch_size+shape下的极限性能。
-适配内容：参考[模板](../tecoexec/testcase_configs/tecoexec_config.yaml) 添加配置文件至`TecoInference/contrib/tecoexec/tecoexec_config.yaml`，并参考[文档](../tecoexec/README.md)完成功能测试即可。
 
-## 4. 完成测试并提交代码
-适配完成后需要完成精度pipeline和极限性能的所有case测试，通过标准：
 
-- 所有case：常用或源码默认shape + batch_size=1~max_batchsize(如此扩大shape即可1、4、8、16...，三SPA：1、3、6、12...)。
+## 4. 提交PR
 
-- 精度pipeline：TecoInferenceEngine的metric结果和onnxruntime-cpu的metric结果相对误差不超过0.1%。
-
-- 极限性能：完成功能测试。
-
-完成所有测试并通过后，参考[PR提交规范](./PullRequests.md)提交代码。
+完成所有测试并通过后，您可以将代码提交到Tecorigin ModelZoo仓库。关于如何提交PR，参考[PR提交规范](https://gitee.com/tecorigin/modelzoo/blob/main/TecoInference/doc/PullRequests.md)。
