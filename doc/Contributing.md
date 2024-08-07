@@ -103,9 +103,9 @@ sdaa设备具有单卡4SPA特性，因此需要适配分布式训练DDP，具体
 统一运行接口添加具体请参考: [ResNet50 TecoPaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)。
 
 ### 3.4 添加统一日志接口
-统一使用`tcap_dlloger`输出统一的log日志，用于分析模型运行过程中的指标和运行结果。至少在训练阶段需要ips和loss，在验证阶段需要metric。如果你模型使用的并非ips来衡量性能，也可以采用其他指标。
+统一使用`tcap_dllogger`输出统一的log日志，用于分析模型运行过程中的指标和运行结果。至少在训练阶段需要ips和loss，在验证阶段需要metric。如果你模型使用的并非ips来衡量性能，也可以采用其他指标。
 
-tcap_dlloger工具使用方法请参考:[README](https://gitee.com/xiwei777/tcap_dlloger)。
+tcap_dllogger工具使用方法请参考:[README](https://gitee.com/xiwei777/tcap_dllogger)。
 
 具体修改[参考代码](https://gitee.com/xiwei777/modelzoo/commit/e8dabf0d3b1cebc2c13ecd1a125c9946ec2c342e)，大体分三步：
 
@@ -136,7 +136,7 @@ verbosity=Verbosity.DEFAULT,
 )
 ```
 
-记得把git+https://gitee.com/xiwei777/tcap_dlloger.git添加到requirements.txt。
+记得把git+https://gitee.com/xiwei777/tcap_dllogger.git添加到requirements.txt。
 
 ### 3.5 sdaa上精度对齐cuda
 该部分需要保证适配完sdaa后，使用相同参数，训练精度和cuda对齐，相对误差不能大于1%。如果适配完，发现模型精度存在问题，可以参考精度调测文档[PyTorch](http://docs.tecorigin.com/release/tecopytorch/)和 [PaddlePaddle](http://docs.tecorigin.com/release/tecopaddle)中的模型调测章节进行排查。

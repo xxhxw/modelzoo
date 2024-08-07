@@ -99,7 +99,7 @@ python -c "import torch_sdaa"
 pip install -r requirements.txt
 
 # install tcsp_dlloger
-git clone https://gitee.com/xiwei777/tcap_dlloger.git
+git clone https://gitee.com/xiwei777/tcap_dllogger.git
 cd tcap_dllogger
 python setup.py install
 ```

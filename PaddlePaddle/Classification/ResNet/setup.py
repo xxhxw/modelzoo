@@ -19,8 +19,8 @@ from setuptools import setup
 with open('requirements.txt', encoding="utf-8-sig") as f:
     requirements = []
     for line in f:
-        #pre install tcap_dlloger using 'pip install -r requirements.txt'
-        if 'tcap_dlloger' in line:
+        #pre install tcap_dllogger using 'pip install -r requirements.txt'
+        if 'tcap_dllogger' in line:
             continue
         requirements.append(line)
 

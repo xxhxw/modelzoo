@@ -85,7 +85,7 @@
     pip install .
     
     # 安装 Tcap DLloger
-    pip install git+https://gitee.com/xiwei777/tcap_dlloger.git
+    pip install git+https://gitee.com/xiwei777/tcap_dllogger.git
     ```
     
 ### 2、数据集准备

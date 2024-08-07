@@ -1,4 +1,4 @@
 tqdm
 numpy
 matplotlib
-git+https://gitee.com/xiwei777/tcap_dlloger.git
+git+https://gitee.com/xiwei777/tcap_dllogger.git

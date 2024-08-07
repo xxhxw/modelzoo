@@ -8,4 +8,4 @@ opencv_python==4.1.2.30
 tqdm==4.60.0
 Pillow==8.2.0
 h5py==2.10.0
-git+https://gitee.com/xiwei777/tcap_dlloger.git
+git+https://gitee.com/xiwei777/tcap_dllogger.git

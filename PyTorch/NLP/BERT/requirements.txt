@@ -17,4 +17,4 @@ git+https://gitee.com/sunny8654/dllogger.git
 
 # add
 pyrouge
-git+https://gitee.com/xiwei777/tcap_dlloger.git
+git+https://gitee.com/xiwei777/tcap_dllogger.git

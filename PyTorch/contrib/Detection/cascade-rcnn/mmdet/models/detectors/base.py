@@ -10,7 +10,7 @@ from torch import Tensor
 from mmdet.structures import DetDataSample, OptSampleList, SampleList
 from mmdet.utils import InstanceList, OptConfigType, OptMultiConfig
 from ..utils import samplelist_boxtype2tensor
-# from tcap_dlloger.tcap_dllogger import Logger, StdOutBackend, JSONStreamBackend, Verbosity
+# from tcap_dllogger.tcap_dllogger import Logger, StdOutBackend, JSONStreamBackend, Verbosity
 # json_logger = Logger(
 #         [
 #             StdOutBackend(Verbosity.DEFAULT),

@@ -64,7 +64,7 @@ setproctitle==1.3.3
 six @ file:///tmp/build/80754af9/six_1644875935023/work
 smmap==5.0.1
 sympy==1.12
-TCAP-DLLogger @ git+https://gitee.com/xiwei777/tcap_dlloger.git@fb8953ce168c2d2622af9929206e376cc5f58c7a
+TCAP-DLLogger @ git+https://gitee.com/xiwei777/tcap_dllogger.git@fb8953ce168c2d2622af9929206e376cc5f58c7a
 tensorboard==2.14.0
 tensorboard-data-server==0.7.2
 tomli @ file:///opt/conda/conda-bld/tomli_1657175507142/work
