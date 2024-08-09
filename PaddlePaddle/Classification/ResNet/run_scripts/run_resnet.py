@@ -27,11 +27,13 @@
 from argument import parse_args ,check_argument
 import os
 from pathlib import Path
+from formate_cmd import print_formatted_cmd
+
 
 if __name__ == '__main__':
     args = parse_args()
     args = check_argument(args)
-    
+
     model_name = args.model_name
     epoch = args.epoch
     step = args.step
@@ -54,14 +56,14 @@ if __name__ == '__main__':
     master_port = args.master_port
     early_stop = args.early_stop
     fp64 = args.precision_align
-    
-    
+
+
     project_path = str(Path(__file__).resolve().parents[1])
-    
+
     if 'resnet' not in model_name:
         raise ValueError('please use resnet model')
     layers = model_name.split('t')[1]
-    
+
     if autocast:
         yaml_path = f'{project_path}/ppcls/configs/ResNet{layers}_amp_O1.yaml'
     else:
@@ -73,26 +75,26 @@ if __name__ == '__main__':
         eval_during_train = False
     else:
         eval_during_train = True
-    
+
     if device=='sdaa':
         paddle_sdaa_env = 'PADDLE_XCCL_BACKEND=sdaa HIGH_PERFORMANCE_CONV=1 FLAGS_use_stream_safe_cuda_allocator=0 '
     else:
         paddle_sdaa_env = ''
-    
+
     if bs==32 and nproc_per_node==4:
         env = 'FLAGS_set_to_1d=0 '
     else:
         env = 'FLAGS_set_to_1d=0   RANDOM_ALIGN_NV_DEVICE=a100 '
-    
+
     global_batch_size = bs * nproc_per_node * nnode
     if global_batch_size<256:
         warmup = 0
     else:
         warmup = 2*(global_batch_size // 256 )
-    
+
     if precision_align_log_path is not None:
         os.environ['PD_PRECISION_TOOL_LOG'] = precision_align_log_path
-    
+
     hyper_parameters = f'\
             -o  DataLoader.Train.sampler.batch_size={bs} \
             -o  Global.device={device} \
@@ -135,6 +137,5 @@ if __name__ == '__main__':
             {hyper_parameters} \
             '
     print('本次运行命令',cmd)
+    print_formatted_cmd(cmd)
     os.system(cmd)
-    
-    

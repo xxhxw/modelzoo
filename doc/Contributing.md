@@ -94,13 +94,17 @@ sdaa设备具有单卡4SPA特性，因此需要适配分布式训练DDP，具体
 统一使用`run_scirpts`接口规则进行模型运行，
 该目录下至少应当包括:
 
-1. `README.md`: 参数介绍至少应当有model_name，batchsize，epoch，step，针对单机DDP测例，额外添加nproc_per_node，针对多机DDP测例，额外添加nnode，node_rank参数。
+1. `README.md`: 参数介绍至少应当有model_name，batch_size，epoch，step，dataset_path，lr，device，autocast等参数。针对单机DDP测例，额外添加nproc_per_node，针对多机DDP测例，额外添加nnode，node_rank参数。
 
-2. `run_script.py`: 使用argparse对参数进行解析，并转换为str格式的启动脚本，并使用os.system()启动脚本。
+2. `argument.py`：抽象出所有参数进行单独管理。
+
+3. `formate_cmd.py`：执行指令的格式化输出。
+
+4. `run_modelname.py`: 其中`modelname`为具体的模型名，如`run_resnet.py`。该脚本使用argparse对参数进行解析，并转换为str格式的启动脚本，同时进行格式化，再使用os.system()启动指令。请参考[Bert](../PyTorch/NLP/BERT/run_scripts/run_bert_base_imdb.py)的书写格式组织启动命令。
 
 注意：统一运行接口需要支持--step参数，用来短训测试功能。
 
-统一运行接口添加具体请参考: [ResNet50 TecoPaddle run_scirpts](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet/run_scripts)。
+统一运行接口添加具体请参考: [Bert TecoPyTorch run_scirpts](../PyTorch/NLP/BERT/run_scripts)。
 
 ### 3.4 添加统一日志接口
 统一使用`tcap_dllogger`输出统一的log日志，用于分析模型运行过程中的指标和运行结果。至少在训练阶段需要ips和loss，在验证阶段需要metric。如果你模型使用的并非ips来衡量性能，也可以采用其他指标。
@@ -129,7 +133,7 @@ json_logger.log(
 step = (epoch, step),
 data = {
         "rank":os.environ["LOCAL_RANK"],
-        "train.loss":loss, 
+        "train.loss":loss,
         "train.ips":ips,
         },
 verbosity=Verbosity.DEFAULT,
@@ -147,7 +151,7 @@ README向用户介绍模型的功能、使用方法、精度、数据集、环�
 - 简介：
 
     1. 模型的介绍：包含模型的出处和算法介绍。
-    
+
     2. 数据集准备：数据集获取方法，数据集处理方法。
 
     3. Docker环境准备的方法: 包括获取SDAA基础Docker环境，创建当前模型Docker镜像，创建当前模型Docker容器，启动当前模型Docker容器等。
@@ -168,5 +172,23 @@ README写作可参考如下链接：
 
 [ResNet50 TecoPaddle README](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet)
 
-## 3.7 PR提交
+### 3.7 添加模型的yaml信息
+用户在[model.yaml](../PyTorch/contrib/model_config/model.yaml)中补充相关的参数设置，用于PR的功能性测试。功能性测试包含两部分检测：
+
+- 目录结构规范性检测：检查提交的模型目录下是否包含`run_scripts`，`README.md`，`requirements.txt`等必要文件以及目录。目录结构如下：
+
+        └── model_dir
+            ├──requirements.txt
+            ├──README.md
+            ├──run_scripts
+               ├──run_modelname.py
+               ├──argument.py
+               ├──formate_cmd.py
+               ├──REAMDE.md
+
+- 模型训练功能性检查：检查提交的指令是否正常跑通，没有功能性错误。
+
+yaml文件的具体信息参考[model yaml](../PyTorch/contrib/model_config/README.md)。
+
+### 3.8 PR提交
 完成上述所有流程后，参考[PR提交规范](./PullRequests.md)提交代码。

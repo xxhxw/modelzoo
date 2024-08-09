@@ -38,9 +38,9 @@ from utils.postprocess.pytorch.classification import postprocess
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ckpt', type=str, default='./resnet50.onnx', help='onnx path')
-    parser.add_argument('--data-path', type=str, default='./images/cat.png', help='images path')
+    parser.add_argument('--data_path', type=str, default='./images/cat.png', help='images path')
     parser.add_argument('--input_name', type=str, default='resnet50', help='input name')
-    parser.add_argument('--batch-size', type=int, default=1, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=1, help='batch size')
     parser.add_argument('--input_size', type=int, default=224, help='inference size (pixels)')
     parser.add_argument('--target', default='sdaa', help='sdaa or cpu')
     parser.add_argument('--dtype', type=str, default='float16', help='use FP16 half-precision inference')
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     ###  init infer engine
     MAX_ENGINE_NUMS = int(os.getenv('MAX_ENGINE_NUMS', 4))
     input_size = [[max(opt.batch_size // MAX_ENGINE_NUMS, 1), 3, opt.input_size, opt.input_size]]
-    infer_engine = TecoInferEngine(ckpt=opt.ckpt, 
+    infer_engine = TecoInferEngine(ckpt=opt.ckpt,
                                   batch_size=opt.batch_size,
                                   input_size=input_size,
                                   input_name=opt.input_name,
@@ -76,5 +76,3 @@ if __name__ == "__main__":
         infer_engine.release()
 
     print(output)
-    
-    

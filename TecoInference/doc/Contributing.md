@@ -10,7 +10,7 @@
 
 4. 提交PR：完成所有适配测试并通过后，将代码提交到Tecorigin ModelZoo仓库。
 
-   
+
 
 ## 1. 检查推理环境
 
@@ -63,7 +63,7 @@ Wed Jun  5 02:46:48 2024
 
 - SPE-Util：T1计算设备计算核心SPE的使用率。如果出现`N/A`，表示T1芯片出现掉卡问题，请联系太初技术支持团队获取帮助。
 
-  
+
 
 ### 1.2 检查容器软件信息
 
@@ -72,12 +72,12 @@ Wed Jun  5 02:46:48 2024
 1. 在容器中，执行以下命令，查看Conda基础环境信息。
 
    ```
-   (base) root@DevGen03:/softwares# conda info -e 
+   (base) root@DevGen03:/softwares# conda info -e
    ```
 
    如果环境中包含`tvm-build`信息，表示基础环境正常。示例如下：
 
-   ``` 
+   ```
     # conda environments:
     base                  *  /root/miniconda3
     paddle_env               /root/miniconda3/envs/paddle_env
@@ -88,15 +88,15 @@ Wed Jun  5 02:46:48 2024
 2. 进入Conda环境，执行以下命令，查看TecoinferenceEngine（小模型）框架及其依赖组件信息。
 
    ```
-   (base) root@DevGen03:/softwares# conda activate tvm-build 
-   (torch_env) root@DevGen03:/softwares# python -c "import tvm"
+   (base) root@DevGen03:/softwares# conda activate tvm-build
+   (tvm-build) root@DevGen03:/softwares# python -c "import tvm"
    ```
 
    如果终端成功输出TecoinferenceEngine（小模型）框架及其依赖组件的版本，表示TecoinferenceEngine（小模型）运行正常。示例如下：
 
    ```
    python -c "import tvm"
-   
+
    # 输出以下内容
    ---------------+---------------------------------------------
    Host IP        | xx.xx.xx.xx
@@ -109,7 +109,7 @@ Wed Jun  5 02:46:48 2024
    SDAA Runtime   | 1.2.0
    SDAA Driver    | 1.2.0
    ---------------+---------------------------------------------
-    
+
    ```
 
 
@@ -130,7 +130,7 @@ Wed Jun  5 02:46:48 2024
 
 4. 在PyTorch/PaddlePaddle的CPU或GPU环境复现源码提供的metric指标，确保源码、模型和数据集的准确无误。
 
-   
+
 
 #### 2.1.2 Fork ModelZoo仓库
 
@@ -233,17 +233,17 @@ pip install -r requirements.txt
   import onnx
   import onnxsim		# 用于简化模型
   from onnxconverter_common import float16	# 用于将模型转为float16
-  
+
   import torch
   import torchvision
-  
+
   # init model
   resnet = torchvision.models.resnet50(pretrained=True)
   resnet.eval()
-  
+
   # init dumpy_input
   dumpy_input = torch.randn(1, 3, 224, 224)
-  
+
   # 静态shape导出
   torch.onnx.export(resnet,
                     dummy_input,
@@ -254,11 +254,11 @@ pip install -r requirements.txt
                     do_constant_folding=True, 	# 是否执行常量折叠优化
                     dynamic_axes=None,	# 是否使用动态shape，不使用默认为None
                    )
-  
+
   # 动态shape导出（推荐）
   dynamic_dims = {'input': {0: 'batch', 2: 'height', 3: 'width'},
                   'output': {0: 'batch'}}
-  
+
   torch.onnx.export(resnet,
                     dummy_input,
                     "resnet_dyn.onnx",
@@ -268,17 +268,17 @@ pip install -r requirements.txt
                     do_constant_folding=True, 	# 是否执行常量折叠优化
                     dynamic_axes=dynamic_dims,	# 是否使用动态shape，不使用默认为None
                    )
-  
+
   # 以下动态静态均适用
-  
+
   # Checks
   model_onnx = onnx.load("resnet_dyn.onnx")  # load onnx model
   onnx.checker.check_model(model_onnx)  # check onnx model
-  
+
   # Simplify
   model_onnx, check = onnxsim.simplify(model_onnx)
   assert check, 'assert check failed'
-  
+
   # convert_float_to_float16
   model_onnx = float16.convert_float_to_float16(model_onnx)
   onnx.save(model_onnx, "resnet_float16_dyn.onnx")
@@ -294,19 +294,19 @@ pip install -r requirements.txt
   import onnx
   import onnxsim		# 用于简化模型
   from onnxconverter_common import float16	# 用于将模型转为float16
-  
+
   import paddle
   from paddle.vision.models import resnet50
-  
+
   # init model
   model = resnet50(pretrained=True)
-  
+
   # 静态shape
   input_spec = [
       paddle.static.InputSpec(
           shape=[1, 3, 224, 224], dtype="float32"),
   ]
-  
+
   # 动态shape
   input_spec = [
       paddle.static.InputSpec(
@@ -316,17 +316,17 @@ pip install -r requirements.txt
                      "resnet.onnx",
                      input_spec=input_spec,
                      opset_version=12)
-  
+
   # 以下动态静态均适用
-  
+
   # Checks
   model_onnx = onnx.load("resnet.onnx")  # load onnx model
   onnx.checker.check_model(model_onnx)  # check onnx model
-  
+
   # Simplify
   model_onnx, check = onnxsim.simplify(model_onnx)
   assert check, 'assert check failed'
-  
+
   # convert_float_to_float16
   model_onnx = float16.convert_float_to_float16(model_onnx)
   onnx.save(model_onnx, "resnet_float16.onnx")
@@ -356,7 +356,7 @@ import numpy as np
 from torchvision.transforms.functional import InterpolationMode
 
 RANK = int(os.getenv('RANK', -1))
-LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1)) 
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))
 
 def fast_collate(memory_format, batch):
     imgs = [img[0] for img in batch]
@@ -374,7 +374,7 @@ def load_data(valdir, batch_size,rank=-1):
 
     rank = int(os.environ.get('OMPI_COMM_WORLD_RANK', rank))
     world_size = int(os.environ.get('OMPI_COMM_WORLD_SIZE', 0))
-    
+
     print("Creating data loaders")
     if rank== -1:
         test_sampler = torch.utils.data.SequentialSampler(dataset_test)
@@ -387,7 +387,7 @@ def load_data(valdir, batch_size,rank=-1):
         collate_fn=partial(fast_collate, torch.contiguous_format),shuffle=(test_sampler is None),
         drop_last=True ,
     )
-    
+
     return data_loader_test
 ```
 
@@ -447,7 +447,7 @@ def preprocess(image_path, dtype='float16', resize_shape=256, crop_shape=224):
     else:
         print("输入有误")
         return None
-    
+
     images = np.vstack(images)
     images = images.astype(np.float16) if dtype=='float16' else images.astype(np.float32)
     return images
@@ -472,7 +472,7 @@ def postprocess(model_outputs, target='sdaa', topk=1):
     else:
         labels_url = "https://s3.amazonaws.com/onnx-model-zoo/synset.txt"
         labels_path = download_testdata(labels_url, "synset.txt", module="data")
-    
+
     with open(labels_path, "r") as f:
         labels = [l.rstrip() for l in f]
 
@@ -519,10 +519,14 @@ from utils.postprocess.pytorch.classification import postprocess
 # 获取单卡三/四SPA环境变量
 MAX_ENGINE_NUMS = int(os.getenv('MAX_ENGINE_NUMS', 4))	# 三/四SPA环境变量
 
+# 添加最大推理step数
+max_step = int(os.environ.get("TECO_INFER_PIPELINES_MAX_STEPS", -1))
+
+
 if __name__ == "__main__":
     # 动态shape的onnx文件需要指定运行时模型的输入shape, 按照模型输入设置
     input_size = [[max(batch_size // MAX_ENGINE_NUMS, 1), 3, shape, shape]] # 参考3.3.2的注意内容。
-    
+
     # 初始化模型，支持onnx/tensorrt/tvm
     pipeline = TecoInferEngine(ckpt=ckpt,				# 模型的onnx文件路径
                                input_name=input_name,	# 导出模型onnx时的input_name
@@ -532,35 +536,35 @@ if __name__ == "__main__":
                                dtype="float16", 		# 可选"float16"和"float32"，推荐"float16"
                                pass_path=pass_path,		# 推理框架优化文件，新适配模型设置为：PASS_PATH / "default_pass.py" 即可
                               )
-    
+
     # load dataset
     val_loader = load_data(data_path, batch_size)
-    
+
     # 统计性能
     e2e_time = []
     pre_time = []
     run_time = []
     post_time = []
     ips = []
-    
+
     results = []
     # 遍历数据集进行推理，记录结果和性能数据
-    for _, (input, target) in tqdm(val_loader):
+    for index, (input, target) in tqdm(val_loader):
         start_time = time.time()
         # 预处理, 需要将输入数据处理为np.ndarray或按照输入顺序处理为[np.ndarray, np.ndarray, ...]格式
         images = preprocess(input, dtype=opt.dtype)
         preprocess_time = time.time() - start_time
-        
+
         # 进行推理，输出为numpy格式数据
         prec = pipeline(images)
         model_time = infer_engine.run_time
-    
+
         # 后处理, 例如目标检测算法需要进行nms等
         result = postprocess(prec)
         infer_time = time.time() - start_time
-    
+
         results.append(result)
-    
+
         # 统计性能数据
         postprocess_time = infer_time - preprocess_time - model_time
         sps = batch_size / infer_time
@@ -569,14 +573,15 @@ if __name__ == "__main__":
         run_time.append(pipeline.run_time)
         post_time.append(postprocess_time)
         ips.append(sps)
-    
+        if max_step > 0 and index >= max_step:
+            break
     # metric计算，根据算法方向计算数据集推理的评价指标
     metric = get_acc(results)
 
     # 释放device显存，stream等资源
     if "sdaa" in opt.target:
         infer_engine.release()
-    
+
     # 打印结果
     print('eval_metric', metric)
     print(f'summary: avg_sps: {np.mean(ips)}, e2e_time: {sum(e2e_time)}, avg_inference_time: {np.mean(run_time)}, avg_preprocess_time: {np.mean(pre_time)}, avg_postprocess: {np.mean(post_time)}')
@@ -603,7 +608,7 @@ from utils.postprocess.pytorch.classification import postprocess
 if __name__ == "__main__":
     # 动态shape的onnx文件需要指定运行时模型的输入shape, 按照模型输入设置, 注意batch=1
     input_size = [[1, 3, shape, shape]]
-    
+
     # 初始化模型，支持onnx/tensorrt/tvm
     pipeline = TecoInferEngine(ckpt=ckpt,				# 模型的onnx文件路径
                                input_name=input_name,	# 导出模型onnx时的input_name
@@ -634,7 +639,7 @@ if __name__ == "__main__":
 ```
 ......
 if __name__ == "__main__":
-    
+
     ......
 
     for file_name in os.listdir(opt.data_path):
@@ -688,8 +693,21 @@ if __name__ == "__main__":
     提供数据集推理命令行、推理结果和推理结果说明（参考resnet/README.md）
 ```
 
+## 4. 添加模型的yaml信息
+用户在[model.yaml](../contrib/model_config/model.yaml)中补充相关的参数设置，用于PR的功能性测试。功能性测试包含两部分检测：
+
+- 目录结构规范性检测：检查提交的模型目录下是否包含`README.md`，`requirements.txt`等必要文件。目录结构如下：
+
+        └── model_dir
+            ├──requirements.txt
+            ├──README.md
+            ...
+
+- 模型功能性检查：根据用户提交的指令，检查onnx导出，数据集推理，单样本推理，多样本推理功能是否正常跑通，没有功能性错误。
+
+yaml文件的具体信息参考[model yaml](../contrib/model_config/README.md)。
 
 
-## 4. 提交PR
+## 5. 提交PR
 
 完成所有测试并通过后，您可以将代码提交到Tecorigin ModelZoo仓库。关于如何提交PR，参考[PR提交规范](https://gitee.com/tecorigin/modelzoo/blob/main/TecoInference/doc/PullRequests.md)。

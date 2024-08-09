@@ -74,9 +74,9 @@ def accuracy(output, target, topk=(1,)):
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ckpt', type=str, default='./resnet50.onnx', help='onnx path')
-    parser.add_argument('--data-path', type=str, default='./images/cat.png', help='images path')
+    parser.add_argument('--data_path', type=str, default='./images/cat.png', help='images path')
     parser.add_argument('--input_name', type=str, default='resnet50', help='input name')
-    parser.add_argument('--batch-size', type=int, default=1, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=1, help='batch size')
     parser.add_argument('--input_size', type=int, default=224, help='inference size (pixels)')
     parser.add_argument('--target', default='sdaa', help='sdaa or cpu')
     parser.add_argument('--dtype', type=str, default='float32', help='use FP16 half-precision inference')
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     max_step = int(os.environ.get("TECO_INFER_PIPELINES_MAX_STEPS", -1))
     warmup_step = int(os.environ.get("TECO_INFER_PIPELINES_WARMUP_STEPS", 0))
     global_step = 1
-    
+
     ###  init infer engine
     MAX_ENGINE_NUMS = int(os.getenv('MAX_ENGINE_NUMS', 4))
     input_size = [[max(opt.batch_size // MAX_ENGINE_NUMS, 1), 3, opt.input_size, opt.input_size]]
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     data_iter = enumerate(val_loader)
 
-    # start infer 
+    # start infer
     while True:
         for _,(input,target) in tqdm(data_iter):
             start_time = time.time()
@@ -145,7 +145,7 @@ if __name__ == "__main__":
                 precs = accuracy(result, target, topk=(1, opt.topk))
             infer_time = time.time() - start_time
             postprocess_time = infer_time - preprocess_time - model_time
-            
+
             precs = map(lambda t: t.item(), precs)
             infer_result = {f"top{k}": (p, opt.batch_size) for k, p in zip((1, opt.topk), precs)}
             acc_result.append(infer_result[f"top{opt.topk}".format(opt.topk)][0]/100)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
             global_step += 1
         if global_step >= max_step:
             break
-    
+
     # 释放device显存，stream等资源
     if "sdaa" in opt.target:
         infer_engine.release()

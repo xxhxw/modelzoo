@@ -38,9 +38,9 @@ from utils.postprocess.pytorch.classification import postprocess
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ckpt', type=str, default='./resnet50.onnx', help='onnx path')
-    parser.add_argument('--data-path', type=str, default='./images/', help='images path')
+    parser.add_argument('--data_path', type=str, default='./images/', help='images path')
     parser.add_argument('--input_name', type=str, default='resnet50', help='input name')
-    parser.add_argument('--batch-size', type=int, default=1, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=1, help='batch size')
     parser.add_argument('--input_size', type=int, default=224, help='inference size (pixels)')
     parser.add_argument('--target', default='sdaa', help='sdaa or cpu')
     parser.add_argument('--dtype', type=str, default='float32', help='use FP16 half-precision inference')
