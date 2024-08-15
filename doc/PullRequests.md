@@ -7,7 +7,7 @@
 - 算法领域当前有Classification、Detection、Face、GNN、NLP、Recommendation、Reinforcement、Segmentation、Speech，请开发者从上述中选择。如果所选模型不在上述列表中，可使用其他算法领域名称，并在issue中对此进行说明。
 - 模型名称即是对应的模型名称。
 
-例如GoogleNet的PyTorch版本提交的路径为为: `PyTorch/contrib/Classification/GoogleNet`。
+例如GoogleNet的PyTorch版本提交的路径为: `PyTorch/contrib/Classification/GoogleNet`。
 
 ## 命名规范
 - 文件和文件夹命名中，使用下划线"_"代表空格，不要使用"-"。
