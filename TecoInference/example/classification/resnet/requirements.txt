@@ -9,3 +9,4 @@ numpy>=1.18.5
 Pillow>=7.1.2
 onnxruntime
 onnxconverter_common
+onnx-simplifier
