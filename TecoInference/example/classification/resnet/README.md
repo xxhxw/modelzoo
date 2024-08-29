@@ -78,7 +78,7 @@ ResNet是一种深度卷积神经网络模型，采用了残差网络（ResNet�
    - 单张图像推理：使用单张图像作为输入，进行推理。
    
      ```
-     python example_single_batch.py  --ckpt resnet_float16_dyn.onnx --batch-size 1 --input_name resnet50 --target sdaa --topk 1  --data-path './images/cat.png' --dtype float16
+     python example_single_batch.py  --ckpt resnet_float16_dyn.onnx --batch_size 1 --input_name resnet50 --target sdaa --topk 1  --data_path './images/cat.png' --dtype float16
      ```
 
       推理结果：
@@ -90,7 +90,7 @@ ResNet是一种深度卷积神经网络模型，采用了残差网络（ResNet�
     - 文件夹推理：使用文件夹，对文件中的所有图像进行推理。
 
       ```
-      python example_multi_batch.py  --ckpt resnet_float16_dyn.onnx --batch-size 1 --input_name resnet50 --target sdaa       --topk 1  --data-path './images' --dtype float16
+      python example_multi_batch.py  --ckpt resnet_float16_dyn.onnx --batch_size 1 --input_name resnet50 --target sdaa       --topk 1  --data_path './images' --dtype float16
       ```
 
       推理结果：
@@ -104,9 +104,9 @@ ResNet是一种深度卷积神经网络模型，采用了残差网络（ResNet�
 
 | 参数 | 说明 | 默认值 |
 | ------------- | ------------- | ------------- |
-| data-path  |数据路径 |./images/cat.png|
+| data_path  |数据路径 |./images/cat.png|
 | ckpt       | 模型onnx路径  | N/A |
-| batch-size | 推理的batch_size  | 1 |
+| batch_size | 推理的batch_size  | 1 |
 | target     | 推理的设备 | `sdaa` |
 | input_name |  onnx输入的名称 | resnet50  |
 | dtype      | 模型推理的数据类型  | float16 |
@@ -118,7 +118,7 @@ ResNet是一种深度卷积神经网络模型，采用了残差网络（ResNet�
 请提前准备好ImageNet数据集，执行以下命令，获得推理精度数据。
 
 ```
-python example_valid.py --ckpt resnet_float16_dyn.onnx --batch-size 64 --input_name resnet50 --target sdaa --dtype float16 --topk 1 --data-path path_to/imagenet/val --skip_postprocess True
+python example_valid.py --ckpt resnet_float16_dyn.onnx --batch_size 64 --input_name resnet50 --target sdaa --dtype float16 --topk 1 --data_path path_to/imagenet/val --skip_postprocess True
 ```
 
 精度结果如下：
