@@ -10,7 +10,8 @@ __pycache__/
 dlloger_example.json
 
 output_test
-
+.idea
+.gitignore
 # C extensions
 *.so
 
