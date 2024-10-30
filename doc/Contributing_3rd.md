@@ -190,10 +190,14 @@ README向用户介绍模型的功能、使用方法、精度、数据集、环�
 
     3. 如果使用开源数据集或权重，提供开源获取方式和数据处理方法。如果使用非开源数据集或权重，请提供百度网盘下载链接和数据处理方法。
 
+    4. 如果当前开发环境无法使用Docker，请详细描述环境搭建过程（TecoTorch/TecoPaddle及更基础的依赖可忽略）。
+    
+    5. 请确保requirements.txt正确无误，可以通过pip install -r requirements.txt安装。
+
 
 README写作可参考如下链接：
 
-[ResNet50 TecoPaddle README](https://gitee.com/tecorigin/modelzoo/tree/main/PaddlePaddle/Classification/ResNet)
+[ResNet50 TecoTorch README](https://gitee.com/tecorigin/modelzoo/tree/main/PyTorch/Classification/ResNet)
 
 ### 3.7 PR提交
 完成上述所有流程后，参考[PR提交规范](./PullRequests_3rd.md)提交代码。
