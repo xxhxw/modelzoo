@@ -72,7 +72,7 @@ Wed Jun  5 02:46:48 2024
 2. 将PyTorch或Paddle代码迁移至sdaa。
 3. 在代码中添加必要的注释和License。
 4. 确保sdaa上精度存在下降趋势。
-5. 在scripts目录下添加train_sdaa_3rd.sh，plot_curve.py，train_sdaa_3rd.log，train_sdaa_3rd.png。
+5. 在script目录下添加运行脚本。
 6. 根据README样板，添加README文档。
 7. 根据PR提交规范提交代码。
 
@@ -165,8 +165,13 @@ sdaa设备具有单卡4SPA特性，因此需要适配分布式训练DDP，具体
 - 如果metric数据数量小于5，则只需要保证loss具备下降趋势
 - 如果在cuda上2小时候训练，loss和metric均无明显下降趋势，请在PR和README中提供对应的说明
 
-### 3.5 在目录下添加script/train_sdaa_3rd.sh
-在指定目录下添加启动脚本train_sdaa_3rd.sh，便于启动训练，复现结果；添加训练结果的日志train_sdaa_3rd.log；添加plot_curve.py，便于对loss和metric进行可视化；以及精度曲线图train_sdaa_3rd.png。
+### 3.5 在script目录下添加运行脚本
+在指定目录下添加启动脚本：
+1. 添加process_data.sh 便于处理数据，如果数据不需要处理，则不需要提供
+2.添加 train_sdaa_3rd.sh，便于启动训练，复现结果
+3. 添加训练结果的日志train_sdaa_3rd.log
+4. 添加plot_curve.py，便于对loss和metric进行可视化
+5. 添加精度曲线图train_sdaa_3rd.png
 
 ### 3.6 添加README文档
 README向用户介绍模型的功能、使用方法、精度、数据集、环境依赖等信息，README文件应包含如下内容：
