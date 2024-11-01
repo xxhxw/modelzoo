@@ -28,11 +28,11 @@
     - 当前适配的软件栈版本：在python中import torch_sdaa/paddle_sdaa即可打印当前软件栈版本，以截图的方式提供即可。
     - 源码参考：应当给出具体的参考链接和对应的commit id或tag，如果无参考源码，请说明。
     - 工作目录：请参考路径规范。
-    - 适配内容及对应的运行脚本：提测脚本应当使用run_script的方式运行。
+    - 适配内容及对应的运行脚本：运行脚本应当在scripts下存放。
     - 结果展示：结果展示用应当包含模型精度结果，精度曲线图及模型运行脚本运行时间。
     - README自测结果：确定README已经通过自测，非开发者可以通过README运行此次PR内容。
 
-具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-江南大学AILAB-模型训练-在PyTorch框架上支持resnet50在imagenet上的训练【请勿合入，仅作为PR模板进行展示】](https://gitee.com/tecorigin/modelzoo/pulls/10)
+具体PR提测内容可以参考模板：[【生态活动】元碁智汇·定义未来-席威-模型训练-在PyTorch框架上支持efficientnetv2_rw_t在imagenet上的训练](https://gitee.com/tecorigin/modelzoo/pulls/150)
 
 ## 编程规范
 - Python代码遵循[PEP8](https://peps.python.org/pep-0008/)规范。
