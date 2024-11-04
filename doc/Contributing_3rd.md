@@ -88,6 +88,32 @@ sdaa设备具有单卡4SPA特性，因此需要适配分布式训练DDP，具体
 #### 3.2.3 AMP适配
 为加快训练速度，需要适配自动混合精度AMP训练，具体适配手册参考[PyTorch](http://docs.tecorigin.com/release/tecopytorch/)和 [PaddlePaddle](http://docs.tecorigin.com/release/tecopaddle)中的模型迁移章节中的自动混合精度AMP文档。
 
+#### 3.2.4 注释添加
+对于原始代码的修改，应当加上注释说明当前修改的原因，注释可以为中文，例如：
+```
+# Set device to "cuda" if available, otherwise "cpu"
+if torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
+print(f"device is {device}")
+```
+可以修改为
+```
+# Try to import torch_sdaa; fallback to "cuda" or "cpu"
+try:
+    import torch_sdaa
+    device = "sdaa"
+except:
+    # Set device to "cuda" if available, otherwise "cpu"
+    warnings.warn("sdaa is not available.")
+    if torch.cuda.is_available():
+        device = "cuda"
+    else:
+        device = "cpu"
+print(f"device is {device}")
+```
+
 ### 3.3 在代码中添加必要的注释和License
 对于代码中重要的部分，需要加入注释介绍功能，帮助用户快速熟悉代码结构，包括但不仅限于：
 - 函数的功能说明。
@@ -189,15 +215,18 @@ README向用户介绍模型的功能、使用方法、精度、数据集、环�
     5. 训练结果: 提供参数介绍，精度结果和精度曲线图。
 
 - 关键要求：
-    1. 模型的精度应当达到原始模型水平。
+    1. 模型的出处应当给出具体的参考链接和对应的commit id或tag，如果无参考源码，请说明。
+    例如该模型来自于https://github.com/huggingface/pytorch-image-models/tree/main，对应的commit id为d4dde48
 
-    2. 模型的训练过程中，使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)来提升性能。
+    2. 模型的精度应当达到原始模型水平。
 
-    3. 如果使用开源数据集或权重，提供开源获取方式和数据处理方法。如果使用非开源数据集或权重，请提供百度网盘下载链接和数据处理方法。
+    3. 模型的训练过程中，使用DDP(Distributed Data Parallel)和AMP(Automatic Mixed Precision)来提升性能。
 
-    4. 如果当前开发环境无法使用Docker，请详细描述环境搭建过程（TecoTorch/TecoPaddle及更基础的依赖可忽略）。
+    4. 如果使用开源数据集或权重，提供开源获取方式和数据处理方法。如果使用非开源数据集或权重，请提供百度网盘下载链接和数据处理方法。
+
+    5. 如果当前开发环境无法使用Docker，请详细描述环境搭建过程（TecoTorch/TecoPaddle及更基础的依赖可忽略）。
     
-    5. 请确保requirements.txt正确无误，可以通过pip install -r requirements.txt安装。
+    6. 请确保requirements.txt正确无误，可以通过pip install -r requirements.txt安装。
 
 
 README写作可参考如下链接：

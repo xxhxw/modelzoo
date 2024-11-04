@@ -22,8 +22,6 @@
 
 - PR标题：请在PR标题前标注活动名称，开发者团队名称及适配的内容。
 
-    例如参与[【生态活动】元碁智汇·定义未来](https://gitee.com/tecorigin/modelzoo/issues/IAHGWN?from=project-issue)时，标题请参考 **【生态活动】元碁智汇·定义未来-江南大学AILAB-模型训练-在PyTorch框架上支持resnet50在imagenet上的训练**
-
 - PR内容：PR内容应当包括如下具体信息：
     - 当前适配的软件栈版本：在python中import torch_sdaa/paddle_sdaa即可打印当前软件栈版本，以截图的方式提供即可。
     - 源码参考：应当给出具体的参考链接和对应的commit id或tag，如果无参考源码，请说明。
