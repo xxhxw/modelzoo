@@ -192,11 +192,14 @@ print(f"device is {device}")
 - 如果在cuda上2小时候训练，loss和metric均无明显下降趋势，请在PR和README中提供对应的说明
 
 ### 3.5 在scripts目录下添加运行脚本
+注意事项：
+未处理/已处理数据集统一放在/data/datasets/下，权重统一放在/data/ckpt/下
+
 在指定目录下添加启动脚本：
-1. 添加process_data.sh 便于处理数据，如果数据不需要处理，则不需要提供
-2. 添加 train_sdaa_3rd.sh，便于启动训练，复现结果, 对于数据集及权重路径等可变的路径，以参数的方式输入shell脚本中。
+1. 添加process_data.sh ，便于处理数据（请按照/data/datasets/数据集/的路径进行书写sh和处理数据集），如果数据不需要处理，则不需要提供
+2. 添加 train_sdaa_3rd.sh，便于启动训练，复现结果，脚本运行时长控制在2h左右，数据集/权重参数路径请参照1./注意事项中进行固定,保持统一，无需修改脚本，即可成功启动训练
 3. 添加训练结果的日志train_sdaa_3rd.log
-4. 添加plot_curve.py，便于对loss和metric进行可视化
+4. 添加plot_curve.py，便于对loss和metric进行可视化，确保2.中产生的日志绘制出正确可视化图
 5. 添加精度曲线图train_sdaa_3rd.png
 
 ### 3.6 添加README文档
