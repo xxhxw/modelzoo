@@ -118,6 +118,12 @@ Wed Jun  5 02:46:48 2024
 
 ### 2.1 适配前准备
 
+适配前需要准备的内容如下：
+
+1. 检查并确认源码、模型和数据集。
+2. 导出ONNX模型。
+3. 适配标准。
+
 #### 2.1.1 检查源码、模型和数据集
 
 适配之前需要检查源码、模型和数据集，确保其满足适配要求。具体流程如下：
@@ -126,78 +132,17 @@ Wed Jun  5 02:46:48 2024
 
 2. 确认适配模型的具体信息，例如：ResNet有多个系列，应明确适配哪一个版本、其输入shape和batch size信息。以适配ResNet50模型为例：`resnet50：input_shape:224x224，batch_size:1~128`。
 
-3. 确认需要适配的数据集和对应的metric指标。
+3. 确认需要适配的数据集、模型权重和对应的metric指标，其中模型权重来源优先级：太初指定的权重 > 官方开源 > 第三方开源 > 个人开源 / 自己训练。
 
 4. 在PyTorch/PaddlePaddle的CPU或GPU环境复现源码提供的metric指标，确保源码、模型和数据集的准确无误。
 
 
 
-#### 2.1.2 Fork ModelZoo仓库
-
-基于Tecorigin ModelZoo仓库进行推理模型适配，首先需要您将[Tecorigin ModelZoo官方仓库](https://gitee.com/tecorigin/modelzoo)fork到您的个人空间，基于您的个人空间进行操作。关于如何Fork仓库，请查阅gitee官方使用文档：[Fork+PullRequest 模式](https://help.gitee.com/base/%E5%BC%80%E5%8F%91%E5%8D%8F%E4%BD%9C/Fork+PullRequest%E6%A8%A1%E5%BC%8F)。
-
-
-
-#### 2.1.3 创建目录
-
-Tecorigin ModelZoo小模型推理子仓`TecoInference`的`contrib`目录是贡献者推理相关代码的工作目录，其目录结构如下：
-
-```
-TecoInference/
-├── contrib         # 注意，提交代码需要放在此目录内，其他目录下文件禁止修改。
-│   ├── engine		# TecoinferenceEngine, 此处代码非必要禁止修改。
-│   │   ├── base.py
-│   │   ├── __init__.py
-│   │   ├── tecoinfer_paddle.py     # paddle模型推理引擎模板
-│   │   └── tecoinfer_pytorch.py    # torch模型推理引擎模板
-│   ├── example		# 推理pipeline适配代码在该路径下，根据具算法方向选择文件夹或创建新文件夹
-│   │   ├── classification
-│   │   ├── detection
-│   │	...
-│   └── utils       # 数据集读取，预处理，后处理代码。
-│       ├── datasets
-│       │   └── __init__.py
-│       ├── __init__.py
-│       ├── postprocess
-│       │   ├── __init__.py
-│       │   ├── paddle
-│       │   │   └── __init__.py
-│       │   └── pytorch
-│       │       └── __init__.py
-│       └── preprocess
-│           ├── __init__.py
-│           ├── paddle
-│           │   └── __init__.py
-│           └── pytorch
-│               └── __init__.py
-
-```
-
-在您本地的Tecorigin ModelZoo仓库中，新建一个目录`TecoInference/contrib/example/<算法领域>/<模型名称>`，用于存放适配后的推理相关代码。其中：
-
-- 算法领域：当前有classification、detection、face、gnn、nlp、recommendation、reinforcement、segmentation和speech等，请您根据实际情况从中选择。
-- 模型名称：对应的模型名称。
-
-例如`GoogleNet`模型，其提交目录为：`TecoInference/contrib/example/classification/googlenet`。
-
-
-
-### 2.2 适配模型推理
-
-适配模型推理的主要流程如下：
-
-1. 导出ONNX模型：将PyTorch或PaddlePaddle框架上的模型保存为ONNX格式文件。
-2. 适配ModelZoo推理接口：将源码中的数据集加载、数据预处理、后处理部分、模型推理代码抽出，按照ModelZoo的目录格式和推理要求进行适配。
-3. 适配极限性能测试：随机初始化构造输入，获取模型特定`batch_size + shape`下的极限性能。
-4. 检查适配后的推理模型是否满足要求。
-
-
-
-#### 2.2.1 导出ONNX模型
+#### 2.1.2 导出ONNX模型
 
 将PyTorch或PaddlePaddle框架上训练好的模型导出为ONNX格式的模型，推荐导出动态形状模型，导出后的模型需要使用`onnxsim`进行简化。
 
-##### 2.2.1.1 安装ONNX依赖
+##### 2.1.2.1 安装ONNX依赖
 
 导出ONNX格式的模型，需要安装一些ONNX依赖。具体依赖信息如下：
 
@@ -221,7 +166,7 @@ paddle2onnx
 pip install -r requirements.txt
 ```
 
-##### 2.2.1.2 导出ONNX模型
+##### 2.1.2.2 导出ONNX模型
 
 - 从PyTorch导出ONNX格式模型
 
@@ -269,7 +214,7 @@ pip install -r requirements.txt
                     dynamic_axes=dynamic_dims,	# 是否使用动态shape，不使用默认为None
                    )
 
-  # 以下动态静态均适用
+  # 以下为可选优化项，动态静态导出时均适用
 
   # Checks
   model_onnx = onnx.load("resnet_dyn.onnx")  # load onnx model
@@ -317,7 +262,7 @@ pip install -r requirements.txt
                      input_spec=input_spec,
                      opset_version=12)
 
-  # 以下动态静态均适用
+  # 以下为可选优化项，动态静态导出时均适用
 
   # Checks
   model_onnx = onnx.load("resnet.onnx")  # load onnx model
@@ -332,6 +277,127 @@ pip install -r requirements.txt
   onnx.save(model_onnx, "resnet_float16.onnx")
   ```
 
+##### 2.1.2.3 ONNX导出常见问题
+
+本节介绍导出ONNX模型时常见的问题以及相应的解决方法。
+
+1. Conv动态权重问题
+
+    导出ONNX模型时，若遇到[conv动态权重问题](https://github.com/pytorch/pytorch/issues/98497)，可以使用`torch.onnx.dynamo_export`接口导出ONNX（需要torch2.4.0及以上版本），具体可参考[PyTorch文档](https://pytorch.org/docs/2.4/onnx_dynamo.html#torch.onnx.dynamo_export)。
+
+2. 算子不支持导致ONNX导出时报错
+
+    导出ONNX模型时，若遇到算子不支持，导致导出ONNX报错，您可以在ONNX导出脚本中以自定义方式添加该算子，然后将其导出。 示例如下：
+
+    ```python
+    import torch
+    import torch.nn as nn
+    from torch.autograd import Function
+    from torch.onnx import OperatorExportTypes
+    class CustomAdd(Function):
+        @staticmethod
+        def forward(ctx, x: torch.Tensor, y: int):
+            return x + y, x + y * 2
+        @staticmethod
+        def symbolic(g: torch.Graph, x: torch.Tensor, y: int):
+            custom_node = g.op("custom::Add", x, y_i=y, outputs=2)
+            return custom_node[0], custom_node[1]
+    class MyModel(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+        def forward(self, x: torch.Tensor):
+            y = 1
+            return CustomAdd.apply(x, y)
+    def main():
+        custum_model = MyModel()
+        x = torch.randn(1, 3).to(torch.int64)
+        torch.onnx.export(model=custum_model,
+                            args=(x),
+                            f="custom_add.onnx",
+                            input_names=["x"],
+                            output_names=['add1', 'add2'],
+                            opset_version=17,
+                            operator_export_type=OperatorExportTypes.ONNX_FALLTHROUGH)
+    if __name__ == '__main__':
+        main()
+    ```
+
+
+#### 2.1.3 适配标准
+
+基线说明：模型推理的精度基线使用ONNXRuntime-CPU测试，性能基线使用TensorRT测试
+
+- 推理精度：TecoInferenceEngine（小模型）推理的metric结果和ONNXRuntime-CPU的metric结果相对误差不超过0.1%；ONNXRuntime-CPU的metric结果与PyTorch/PaddlePaddle复现结果相对误差不超过1%。
+
+- 极限性能：完成所有batch_size场景下的性能测试，除特别说明，性能不做要求。常用或源码默认的batch_size按照[1~max_batchsize]，逐渐增加batch size进行测试。例如：使用4个SPA时，shape中的batch_size为[1、4、8、16、......、512]。
+
+##### 2.1.3.1 获取精度基线
+
+1. 编写ONNXRuntime测试脚本，获取精度基线，可参考[ONNXRuntime文档](https://onnxruntime.ai/docs/get-started/with-python.html#quickstart-examples-for-pytorch-tensorflow-and-scikit-learn)。
+2. 适配ModelZoo后使用pipeline获取，参考[适配推理Pipeline](#2224-适配推理pipeline)中`target`参数说明。
+
+##### 2.1.3.2 获取性能基线
+
+1. 可参考[GitHub: trtexec/README.md](https://github.com/NVIDIA/TensorRT/tree/main/samples/trtexec)获取`Throughput`和`Latency`性能数据。
+
+
+### 2.2 适配模型推理
+
+适配模型推理的主要流程如下：
+
+1. ModelZoo目录说明：Fork ModelZoo仓库并按规范新建目录。
+2. 适配ModelZoo推理接口：将源码中的数据集加载、数据预处理、后处理部分、模型推理代码抽出，按照ModelZoo的目录格式和推理要求进行适配。
+3. 适配极限性能测试：随机初始化构造输入，获取模型特定`batch_size + shape`下的极限性能。
+4. 检查适配后的推理模型是否满足要求。
+
+#### 2.2.1 ModelZoo目录说明
+
+#### 2.2.1.1 Fork ModelZoo仓库
+
+基于Tecorigin ModelZoo仓库进行推理模型适配，首先需要您将[Tecorigin ModelZoo官方仓库](https://gitee.com/tecorigin/modelzoo)fork到您的个人空间，基于您的个人空间进行操作。关于如何Fork仓库，请查阅gitee官方使用文档：[Fork+PullRequest 模式](https://help.gitee.com/base/%E5%BC%80%E5%8F%91%E5%8D%8F%E4%BD%9C/Fork+PullRequest%E6%A8%A1%E5%BC%8F)。
+
+
+#### 2.2.1.2 创建目录
+
+Tecorigin ModelZoo小模型推理子仓`TecoInference`的`contrib`目录是贡献者推理相关代码的工作目录，其目录结构如下：
+
+```
+TecoInference/
+├── contrib         # 注意，提交代码需要放在此目录内，其他目录下文件禁止修改。
+│   ├── engine		# TecoinferenceEngine, 此处代码非必要禁止修改。
+│   │   ├── base.py
+│   │   ├── __init__.py
+│   │   ├── tecoinfer_paddle.py     # paddle模型推理引擎模板
+│   │   └── tecoinfer_pytorch.py    # torch模型推理引擎模板
+│   ├── example		# 推理pipeline适配代码在该路径下，根据具算法方向选择文件夹或创建新文件夹
+│   │   ├── classification
+│   │   ├── detection
+│   │	...
+│   └── utils       # 数据集读取，预处理，后处理代码。
+│       ├── datasets
+│       │   └── __init__.py
+│       ├── __init__.py
+│       ├── postprocess
+│       │   ├── __init__.py
+│       │   ├── paddle
+│       │   │   └── __init__.py
+│       │   └── pytorch
+│       │       └── __init__.py
+│       └── preprocess
+│           ├── __init__.py
+│           ├── paddle
+│           │   └── __init__.py
+│           └── pytorch
+│               └── __init__.py
+
+```
+
+在您本地的Tecorigin ModelZoo仓库中，新建一个目录`TecoInference/contrib/example/<算法领域>/<模型名称>`，用于存放适配后的推理相关代码。其中：
+
+- 算法领域：当前有classification、detection、face、gnn、nlp、recommendation、reinforcement、segmentation和speech等，请您根据实际情况从中选择。
+- 模型名称：对应的模型名称。
+
+例如`GoogleNet`模型，其提交目录为：`TecoInference/contrib/example/classification/googlenet`。
 
 
 #### 2.2.2 适配推理接口
@@ -395,6 +461,8 @@ def load_data(valdir, batch_size,rank=-1):
 
 从源码中抽出预处理相关代码进行适配，将适配后的代码保存成Python文件，然后将Python文件放在`TecoInference/contrib/utils/<框架>`目录下。其中：`框架`包含`paddle`和`pytorch`，请根据实际情况选择。
 
+###### 2.2.2.2.1 预处理适配示例
+
 以ResNet模型为例，适配后的预处理代码如下：
 
 ```
@@ -452,6 +520,82 @@ def preprocess(image_path, dtype='float16', resize_shape=256, crop_shape=224):
     images = images.astype(np.float16) if dtype=='float16' else images.astype(np.float32)
     return images
 ```
+
+###### 2.2.2.2.2 预处理适配常见问题
+
+数据预处理阶段主要涉及输入数据形状以及数据类型处理问题，本节介绍输入数据形状以及数据类型问题的处理方法。
+
+1. 输入形状处理
+
+    模型推理时，如果输入数据的形状不满足预设形状需求，会出现输入形状（shape）相关的报错。为解决该类问题，需要在数据预处理时，对输入形状中不满足预设形状的维度进行padding。
+
+    对维度进行padding，包含以下两个方面：
+
+    - Batch维度padding：在未开启`drop_last`时，数据集迭代的最后一个batch数据可能不够组成预设batch size，需要对batch维度进行padding。Batch维度padding示例如下：
+
+        ```python
+        import torch
+        import torch.nn.functional as F
+
+        # 预设batch_size为32
+        batch_size = 32
+
+        # 假设有一个shape为[2, 3, 640, 640]的输入tensor
+        images = torch.randn(2, 3, 640, 640)
+
+        # 获取输入的batch
+        count = images.shape[0]
+        # 判断是否符合预设batch_size, 若不符合则需要padding
+        if count < batch_size:
+            # 对batch维度进行padding
+            images_padded = F.pad(images, (0, 0, 0, 0, 0, 0, 0, batch_size - count))
+
+        # 其他处理
+        ......
+
+        # 推理计算
+        result = pipeline(images_padded)
+
+        # 恢复真实数据的shape
+        result = result[:count]
+        ```
+    - 其它维度padding：对于推理迭代时输入数据为变长的模型，需要将每次迭代的输入形状padding为预设形状（shape）。padding示例如下：
+
+        ```python
+        import torch
+        import torch.nn.functional as F
+
+        # 预设shape为[32, 3, 640, 640]
+        image_shape = 640
+
+        # 假设有一个shape为[32, 3, 640, 512]的输入tensor
+        images = torch.randn(32, 3, 640, 512)
+
+        # 将数据padding为shape[32, 3, 640, 640]
+        images_padded = F.pad(images, (0, image_shape - images.shape[3], image_shape -images.shape[2], 0))
+
+        # 其他处理
+        ...
+
+        # 推理计算
+        result = pipeline(images_padded)
+
+        # 计算后根据实际算法判断是否需要恢复数据shape进行后处理或输出
+        ```
+
+2. 输入数据处理
+
+    TecoInferenceEngine（小模型）推理支持的输入数据为Numpy数组，需要在前处理阶段对输入数据的数据类型和连续性进行检查：
+
+    - 数据类型检查：TecoInferenceEngine（小模型）推理的输入数据为Numpy数组，其数据类型应与使用ONNX转换的engine文件输入数据类型保持一致，否则会引起数据类型不一致的报错。
+    - 连续性检查：输入的numpy数组应是连续数组。如果不连续，可以调用`np.ascontiguousarray`将非连续数组转为连续数组。示例如下：
+
+        ```python
+        import numpy as np
+        if not model_input.flags.c_contiguous:	# 判断是否连续
+            model_input = np.ascontiguousarray(model_input)	# 若不连续，进行处理
+        ```
+
 
 ##### 2.2.2.3 适配后处理
 
@@ -530,7 +674,7 @@ if __name__ == "__main__":
     # 初始化模型，支持onnx/tensorrt/tvm
     pipeline = TecoInferEngine(ckpt=ckpt,				# 模型的onnx文件路径
                                input_name=input_name,	# 导出模型onnx时的input_name
-                               target=target,			# 可选:'onnx'进行onnxruntime-cpu推理、'sdaa'进行TecoInferenceEngine推理、'cuda'(paddle模型为'gpu')进行tensorRT推理
+                               target=target,			# 可选:'onnx'进行onnxruntime-cpu推理、'sdaa'进行TecoInferenceEngine推理
                                batch_size=batch_size,	# 数据集推理的batch_size
                                input_size=input_size,	# 指定初始化时的输入shape
                                dtype="float16", 		# 可选"float16"和"float32"，推荐"float16"
@@ -612,7 +756,7 @@ if __name__ == "__main__":
     # 初始化模型，支持onnx/tensorrt/tvm
     pipeline = TecoInferEngine(ckpt=ckpt,				# 模型的onnx文件路径
                                input_name=input_name,	# 导出模型onnx时的input_name
-                               target=target,			# 可选:'onnx'进行onnxruntime-cpu推理、'sdaa'进行TecoInferenceEngine推理、'cuda'(paddle模型为'gpu')进行tensorRT推理
+                               target=target,			# 可选:'onnx'进行onnxruntime-cpu推理、'sdaa'进行TecoInferenceEngine推理
                                batch_size=batch_size,	# 数据集推理的batch_size
                                input_size=input_size,	# 指定初始化时的输入shape
                                dtype="float16", 		# 可选"float16"和"float32"，推荐"float16"
@@ -658,15 +802,9 @@ if __name__ == "__main__":
 
 适配完成后，参考[文档](../tecoexec/README.md)完成功能测试。
 
-#### 2.2.4 适配标准
+#### 2.2.4 检查模型
 
-适配完成后需要完成推理精度验证和极限性能，且通过以下标准：
-
-- 推理精度：TecoInferenceEngine（小模型）推理的的metric结果和ONNXRuntime-CPU的metric结果相对误差不超过0.1%。
-
-- 极限性能：完成所有`batch_size`场景下的的性能测试。常用或源码默认的`batch_size`按照[1~max_batchsize]，逐渐增加batch size进行测试。例如：使用4个SPA时，shape中的`batch_size`为[1、4、8、16、......、521]。
-
-
+适配完成后需要检查推理模型是否满足[适配标准](#213-适配标准)的要求。
 
 ## 3. 添加README
 
