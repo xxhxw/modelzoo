@@ -1,6 +1,6 @@
 .tccl*
 PyTorch/contrib/Detection/*/work_dirs/
-*.pth
+#*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
