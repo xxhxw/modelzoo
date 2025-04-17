@@ -1,61 +1,81 @@
 <img src="./images/denoising-diffusion.png" width="500px"></img>
 
+来源官方文档，建议参考官方文档：https://github.com/lucidrains/denoising-diffusion-pytorch
+
 ## Denoising Diffusion Probabilistic Model, in Pytorch
 
-Implementation of <a href="https://arxiv.org/abs/2006.11239">Denoising Diffusion Probabilistic Model</a> in Pytorch. It is a new approach to generative modeling that may <a href="https://ajolicoeur.wordpress.com/the-new-contender-to-gans-score-matching-with-langevin-sampling/">have the potential</a> to rival GANs. It uses denoising score matching to estimate the gradient of the data distribution, followed by Langevin sampling to sample from the true distribution.
+基于PyTorch实现的去噪扩散概率模型（Denoising Diffusion Probabilistic Model）是一种生成建模的新方法，具有与生成对抗网络（GANs）竞争的潜力。它通过去噪得分匹配（Denoising Score Matching）估算数据分布的梯度，随后通过Langevin采样从真实分布中进行采样。
 
-This implementation was inspired by the official Tensorflow version <a href="https://github.com/hojonathanho/diffusion">here</a>
-
-Youtube AI Educators - <a href="https://www.youtube.com/watch?v=W-O7AZNzbzQ">Yannic Kilcher</a> | <a href="https://www.youtube.com/watch?v=344w5h24-h8">AI Coffeebreak with Letitia</a> | <a href="https://www.youtube.com/watch?v=HoKDTa5jHvg">Outlier</a>
-
-<a href="https://github.com/yiyixuxu/denoising-diffusion-flax">Flax implementation</a> from <a href="https://github.com/yiyixuxu">YiYi Xu</a>
-
-<a href="https://huggingface.co/blog/annotated-diffusion">Annotated code</a> by Research Scientists / Engineers from <a href="https://huggingface.co/">🤗 Huggingface</a>
-
-Update: Turns out none of the technicalities really matters at all | <a href="https://arxiv.org/abs/2208.09392">"Cold Diffusion" paper</a> | <a href="https://muse-model.github.io/">Muse</a>
-
-<img src="./images/sample.png" width="500px"><img>
-
-[![PyPI version](https://badge.fury.io/py/denoising-diffusion-pytorch.svg)](https://badge.fury.io/py/denoising-diffusion-pytorch)
-
-## Install
-
+## 文件结构
 ```bash
-$ pip install denoising_diffusion_pytorch
+├── coverage.py                                                 #查看覆盖率
+├── deduplicate_cases_and_save.py                               #筛选算子用的
+├── denoising_diffusion_pytorch                                 #框架实现目录
+│   ├── attend.py
+│   ├── classifier_free_guidance.py
+│   ├── continuous_time_gaussian_diffusion.py
+│   ├── denoising_diffusion_pytorch_1d.py
+│   ├── denoising_diffusion_pytorch.py
+│   ├── elucidated_diffusion.py
+│   ├── fid_evaluation.py
+│   ├── guided_diffusion.py
+│   ├── __init__.py
+│   ├── karras_unet_1d.py
+│   ├── karras_unet_3d.py
+│   ├── karras_unet.py
+│   ├── learned_gaussian_diffusion.py
+│   ├── repaint.py
+│   ├── simple_diffusion.py
+│   ├── version.py
+│   ├── v_param_continuous_time_gaussian_diffusion.py
+│   └── weighted_objective_gaussian_diffusion.py
+├── dump_info_denoising_diffusion.tar         
+├── images
+│   ├── denoising-diffusion.png                  
+│   ├── loss.jpg
+│   └── sample.png
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── scripts                                         #训练脚本
+│   └── train.py
+├── setup.py
+├── training_cuda.og
+└── training_sdaa.log
 ```
 
-## Usage
+## 使用说明
 
-```python
-import torch
-from denoising_diffusion_pytorch import Unet, GaussianDiffusion
+### Trainng
 
-model = Unet(
-    dim = 64,
-    dim_mults = (1, 2, 4, 8),
-    flash_attn = True
-)
-
-diffusion = GaussianDiffusion(
-    model,
-    image_size = 128,
-    timesteps = 1000    # number of steps
-)
-
-training_images = torch.rand(8, 3, 128, 128) # images are normalized from 0 to 1
-loss = diffusion(training_images)
-loss.backward()
-
-# after a lot of training
-
-sampled_images = diffusion.sample(batch_size = 4)
-sampled_images.shape # (4, 3, 128, 128)
+#### 快速开始
+* 获取数据集
+选择图像数量大于100的任意图像数据集，这里我选择idenprof中doctor数据集
 ```
+存放路径： /mnt/nvme1/dataset/datasets/idenprof
+```
+* 起docker环境
 
-Or, if you simply want to pass in a folder name and the desired image dimensions, you can use the `Trainer` class to easily train a model.
-
+使用该镜像
+```
+docker pull jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:2.0.0-torch_sdaa2.0.0
+```
+创建环境
+```
+docker run -itd --name=<name> --net=host -v /data/application/hongzg:/data/application/hongzg -v /mnt/:/mnt -v /hpe_share/:/hpe_share -p 22 -p 8080 -p 8888 --privileged --device=/dev/tcaicard20 --device=/dev/tcaicard21 --device=/dev/tcaicard22 --device=/dev/tcaicard23 --cap-add SYS_PTRACE --cap-add SYS_ADMIN --shm-size 300g jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:2.0.0-torch_sdaa2.0.0 /bin/bash
+```
+其他依赖库 参考requirements.txt
+```
+--pytorch-fid
+--einops
+--accelerate
+--ema-pytorch
+```
+* 训练代码：
+可以根据官方文档在Trainer中修改参数
 ```python
 from denoising_diffusion_pytorch import Unet, GaussianDiffusion, Trainer
+from torch_sdaa.utils import cuda_migrate
 
 model = Unet(
     dim = 64,
@@ -65,17 +85,17 @@ model = Unet(
 
 diffusion = GaussianDiffusion(
     model,
-    image_size = 128,
+    image_size = 64,
     timesteps = 1000,           # number of steps
     sampling_timesteps = 250    # number of sampling timesteps (using ddim for faster inference [see citation for ddim paper])
 )
 
 trainer = Trainer(
     diffusion,
-    'path/to/your/images',
+    '/mnt/nvme1/application/hongzg/dataset/idenprof/train/doctor',
     train_batch_size = 32,
     train_lr = 8e-5,
-    train_num_steps = 700000,         # total training steps
+    train_num_steps = 1,              # total training steps
     gradient_accumulate_every = 2,    # gradient accumulation steps
     ema_decay = 0.995,                # exponential moving average decay
     amp = True,                       # turn on mixed precision
@@ -84,305 +104,4 @@ trainer = Trainer(
 
 trainer.train()
 ```
-
-Samples and model checkpoints will be logged to `./results` periodically
-
-## Multi-GPU Training
-
-The `Trainer` class is now equipped with <a href="https://huggingface.co/docs/accelerate/accelerator">🤗 Accelerator</a>. You can easily do multi-gpu training in two steps using their `accelerate` CLI
-
-At the project root directory, where the training script is, run
-
-```python
-$ accelerate config
-```
-
-Then, in the same directory
-
-```python
-$ accelerate launch train.py
-```
-
-## Miscellaneous
-
-### 1D Sequence
-
-By popular request, a 1D Unet + Gaussian Diffusion implementation.
-
-```python
-import torch
-from denoising_diffusion_pytorch import Unet1D, GaussianDiffusion1D, Trainer1D, Dataset1D
-
-model = Unet1D(
-    dim = 64,
-    dim_mults = (1, 2, 4, 8),
-    channels = 32
-)
-
-diffusion = GaussianDiffusion1D(
-    model,
-    seq_length = 128,
-    timesteps = 1000,
-    objective = 'pred_v'
-)
-
-training_seq = torch.rand(64, 32, 128) # features are normalized from 0 to 1
-
-loss = diffusion(training_seq)
-loss.backward()
-
-# Or using trainer
-
-dataset = Dataset1D(training_seq)  # this is just an example, but you can formulate your own Dataset and pass it into the `Trainer1D` below
-
-trainer = Trainer1D(
-    diffusion,
-    dataset = dataset,
-    train_batch_size = 32,
-    train_lr = 8e-5,
-    train_num_steps = 700000,         # total training steps
-    gradient_accumulate_every = 2,    # gradient accumulation steps
-    ema_decay = 0.995,                # exponential moving average decay
-    amp = True,                       # turn on mixed precision
-)
-trainer.train()
-
-# after a lot of training
-
-sampled_seq = diffusion.sample(batch_size = 4)
-sampled_seq.shape # (4, 32, 128)
-
-```
-
-`Trainer1D` does not evaluate the generated samples in any way since the type of data is not known.
-
-You could consider adding a suitable metric to the training loop yourself after doing an editable install of this package
-`pip install -e .`.
-
-## Citations
-
-```bibtex
-@inproceedings{NEURIPS2020_4c5bcfec,
-    author      = {Ho, Jonathan and Jain, Ajay and Abbeel, Pieter},
-    booktitle   = {Advances in Neural Information Processing Systems},
-    editor      = {H. Larochelle and M. Ranzato and R. Hadsell and M.F. Balcan and H. Lin},
-    pages       = {6840--6851},
-    publisher   = {Curran Associates, Inc.},
-    title       = {Denoising Diffusion Probabilistic Models},
-    url         = {https://proceedings.neurips.cc/paper/2020/file/4c5bcfec8584af0d967f1ab10179ca4b-Paper.pdf},
-    volume      = {33},
-    year        = {2020}
-}
-```
-
-```bibtex
-@InProceedings{pmlr-v139-nichol21a,
-    title       = {Improved Denoising Diffusion Probabilistic Models},
-    author      = {Nichol, Alexander Quinn and Dhariwal, Prafulla},
-    booktitle   = {Proceedings of the 38th International Conference on Machine Learning},
-    pages       = {8162--8171},
-    year        = {2021},
-    editor      = {Meila, Marina and Zhang, Tong},
-    volume      = {139},
-    series      = {Proceedings of Machine Learning Research},
-    month       = {18--24 Jul},
-    publisher   = {PMLR},
-    pdf         = {http://proceedings.mlr.press/v139/nichol21a/nichol21a.pdf},
-    url         = {https://proceedings.mlr.press/v139/nichol21a.html},
-}
-```
-
-```bibtex
-@inproceedings{kingma2021on,
-    title       = {On Density Estimation with Diffusion Models},
-    author      = {Diederik P Kingma and Tim Salimans and Ben Poole and Jonathan Ho},
-    booktitle   = {Advances in Neural Information Processing Systems},
-    editor      = {A. Beygelzimer and Y. Dauphin and P. Liang and J. Wortman Vaughan},
-    year        = {2021},
-    url         = {https://openreview.net/forum?id=2LdBqxc1Yv}
-}
-```
-
-```bibtex
-@article{Karras2022ElucidatingTD,
-    title   = {Elucidating the Design Space of Diffusion-Based Generative Models},
-    author  = {Tero Karras and Miika Aittala and Timo Aila and Samuli Laine},
-    journal = {ArXiv},
-    year    = {2022},
-    volume  = {abs/2206.00364}
-}
-```
-
-```bibtex
-@article{Song2021DenoisingDI,
-    title   = {Denoising Diffusion Implicit Models},
-    author  = {Jiaming Song and Chenlin Meng and Stefano Ermon},
-    journal = {ArXiv},
-    year    = {2021},
-    volume  = {abs/2010.02502}
-}
-```
-
-```bibtex
-@misc{chen2022analog,
-    title   = {Analog Bits: Generating Discrete Data using Diffusion Models with Self-Conditioning},
-    author  = {Ting Chen and Ruixiang Zhang and Geoffrey Hinton},
-    year    = {2022},
-    eprint  = {2208.04202},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
-
-```bibtex
-@article{Salimans2022ProgressiveDF,
-    title   = {Progressive Distillation for Fast Sampling of Diffusion Models},
-    author  = {Tim Salimans and Jonathan Ho},
-    journal = {ArXiv},
-    year    = {2022},
-    volume  = {abs/2202.00512}
-}
-```
-
-```bibtex
-@article{Ho2022ClassifierFreeDG,
-    title   = {Classifier-Free Diffusion Guidance},
-    author  = {Jonathan Ho},
-    journal = {ArXiv},
-    year    = {2022},
-    volume  = {abs/2207.12598}
-}
-```
-
-```bibtex
-@article{Sunkara2022NoMS,
-    title   = {No More Strided Convolutions or Pooling: A New CNN Building Block for Low-Resolution Images and Small Objects},
-    author  = {Raja Sunkara and Tie Luo},
-    journal = {ArXiv},
-    year    = {2022},
-    volume  = {abs/2208.03641}
-}
-```
-
-```bibtex
-@inproceedings{Jabri2022ScalableAC,
-    title   = {Scalable Adaptive Computation for Iterative Generation},
-    author  = {A. Jabri and David J. Fleet and Ting Chen},
-    year    = {2022}
-}
-```
-
-```bibtex
-@article{Cheng2022DPMSolverPlusPlus,
-    title   = {DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models},
-    author  = {Cheng Lu and Yuhao Zhou and Fan Bao and Jianfei Chen and Chongxuan Li and Jun Zhu},
-    journal = {NeuRips 2022 Oral},
-    year    = {2022},
-    volume  = {abs/2211.01095}
-}
-```
-
-```bibtex
-@inproceedings{Hoogeboom2023simpleDE,
-    title   = {simple diffusion: End-to-end diffusion for high resolution images},
-    author  = {Emiel Hoogeboom and Jonathan Heek and Tim Salimans},
-    year    = {2023}
-}
-```
-
-```bibtex
-@misc{https://doi.org/10.48550/arxiv.2302.01327,
-    doi     = {10.48550/ARXIV.2302.01327},
-    url     = {https://arxiv.org/abs/2302.01327},
-    author  = {Kumar, Manoj and Dehghani, Mostafa and Houlsby, Neil},
-    title   = {Dual PatchNorm},
-    publisher = {arXiv},
-    year    = {2023},
-    copyright = {Creative Commons Attribution 4.0 International}
-}
-```
-
-```bibtex
-@inproceedings{Hang2023EfficientDT,
-    title   = {Efficient Diffusion Training via Min-SNR Weighting Strategy},
-    author  = {Tiankai Hang and Shuyang Gu and Chen Li and Jianmin Bao and Dong Chen and Han Hu and Xin Geng and Baining Guo},
-    year    = {2023}
-}
-```
-
-```bibtex
-@misc{Guttenberg2023,
-    author  = {Nicholas Guttenberg},
-    url     = {https://www.crosslabs.org/blog/diffusion-with-offset-noise}
-}
-```
-
-```bibtex
-@inproceedings{Lin2023CommonDN,
-    title   = {Common Diffusion Noise Schedules and Sample Steps are Flawed},
-    author  = {Shanchuan Lin and Bingchen Liu and Jiashi Li and Xiao Yang},
-    year    = {2023}
-}
-```
-
-```bibtex
-@inproceedings{dao2022flashattention,
-    title   = {Flash{A}ttention: Fast and Memory-Efficient Exact Attention with {IO}-Awareness},
-    author  = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
-    booktitle = {Advances in Neural Information Processing Systems},
-    year    = {2022}
-}
-```
-
-```bibtex
-@article{Bondarenko2023QuantizableTR,
-    title   = {Quantizable Transformers: Removing Outliers by Helping Attention Heads Do Nothing},
-    author  = {Yelysei Bondarenko and Markus Nagel and Tijmen Blankevoort},
-    journal = {ArXiv},
-    year    = {2023},
-    volume  = {abs/2306.12929},
-    url     = {https://api.semanticscholar.org/CorpusID:259224568}
-}
-```
-
-```bibtex
-@article{Karras2023AnalyzingAI,
-    title   = {Analyzing and Improving the Training Dynamics of Diffusion Models},
-    author  = {Tero Karras and Miika Aittala and Jaakko Lehtinen and Janne Hellsten and Timo Aila and Samuli Laine},
-    journal = {ArXiv},
-    year    = {2023},
-    volume  = {abs/2312.02696},
-    url     = {https://api.semanticscholar.org/CorpusID:265659032}
-}
-```
-
-```bibtex
-@article{Li2024ImmiscibleDA,
-    title   = {Immiscible Diffusion: Accelerating Diffusion Training with Noise Assignment},
-    author  = {Yiheng Li and Heyang Jiang and Akio Kodaira and Masayoshi Tomizuka and Kurt Keutzer and Chenfeng Xu},
-    journal = {ArXiv},
-    year    = {2024},
-    volume  = {abs/2406.12303},
-    url     = {https://api.semanticscholar.org/CorpusID:270562607}
-}
-```
-
-```bibtex
-@article{Chung2024CFGMC,
-    title   = {CFG++: Manifold-constrained Classifier Free Guidance for Diffusion Models},
-    author  = {Hyungjin Chung and Jeongsol Kim and Geon Yeong Park and Hyelin Nam and Jong Chul Ye},
-    journal = {ArXiv},
-    year    = {2024},
-    volume  = {abs/2406.08070},
-    url     = {https://api.semanticscholar.org/CorpusID:270391454}
-}
-```
-
-```bibtex
-@inproceedings{Sadat2024EliminatingOA,
-    title   = {Eliminating Oversaturation and Artifacts of High Guidance Scales in Diffusion Models},
-    author  = {Seyedmorteza Sadat and Otmar Hilliges and Romann M. Weber},
-    year    = {2024},
-    url     = {https://api.semanticscholar.org/CorpusID:273098845}
-}
-```
+* 设置完成参数后，在仓库根目录下执行**python -m ./scripts.train**即可开始训练
