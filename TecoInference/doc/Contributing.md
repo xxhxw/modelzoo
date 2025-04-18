@@ -6,9 +6,15 @@
 
 2. 适配模型推理：对模型源码、推理相关接口等进行适配，使模型能够基于Tecorgin ModelZoo提供的环境进行推理。
 
-3. 添加Readme文件：基于适配的模型推理文件和代码，编写模型推理使用说明。
+3. 精度调试：如果适配后模型精度不达标，需要进行精度调试，确保其满足精度要求。
 
-4. 提交PR：完成所有适配测试并通过后，将代码提交到Tecorigin ModelZoo仓库。
+4. 性能调优：如果适配后的模型性能不达标，需要进行性能调优，确保其满足性能要求。
+
+5. 添加Readme文件：基于适配的模型推理文件和代码，编写模型推理使用说明。
+
+6. 添加模型的yaml信息：在[model.yaml](../contrib/model_config/model.yaml)中补充相关的参数设置，用于PR的功能性测试。
+
+6. 提交PR：完成所有适配测试并通过后，将代码提交到Tecorigin ModelZoo仓库。
 
 
 
@@ -806,7 +812,18 @@ if __name__ == "__main__":
 
 适配完成后需要检查推理模型是否满足[适配标准](#213-适配标准)的要求。
 
-## 3. 添加README
+
+### 3.精度调试
+
+模型适配后，如果精度不能满足需求，则需要进行精度异常原因分析和调优。具体方法可以参考太初元碁官方文档[精度调测](http://docs.tecorigin.net/release/tecoinferenceengine/#6261b8696b0055e8a16199a0aeeb3f62)进行解决。
+
+
+### 4.性能调优
+
+模型适配后，如果训练性能不能满足需求，则需要进行性能分析和调优。具体方法可以参考太初元碁官方文档[性能调优](http://docs.tecorigin.net/release/tecoinferenceengine/#63ddfb2e68b756c19b91c94b0423334e)。
+
+
+## 5. 添加README
 
 基于适配的模型推理文件和代码，编写模型推理使用说明。文档格式可参考模板[resnet](https://gitee.com/tecorigin/modelzoo/blob/main/TecoInference/example/classification/resnet/README.md)，各章节需要严格对齐，必须包含以下内容：
 
@@ -831,7 +848,7 @@ if __name__ == "__main__":
     提供数据集推理命令行、推理结果和推理结果说明（参考resnet/README.md）
 ```
 
-## 4. 添加模型的yaml信息
+## 6. 添加模型的yaml信息
 用户在[model.yaml](../contrib/model_config/model.yaml)中补充相关的参数设置，用于PR的功能性测试。功能性测试包含两部分检测：
 
 - 目录结构规范性检测：检查提交的模型目录下是否包含`README.md`，`requirements.txt`等必要文件。目录结构如下：
@@ -846,6 +863,6 @@ if __name__ == "__main__":
 yaml文件的具体信息参考[model yaml](../contrib/model_config/README.md)。
 
 
-## 5. 提交PR
+## 7. 提交PR
 
 完成所有测试并通过后，您可以将代码提交到Tecorigin ModelZoo仓库。关于如何提交PR，参考[PR提交规范](https://gitee.com/tecorigin/modelzoo/blob/main/TecoInference/doc/PullRequests.md)。
