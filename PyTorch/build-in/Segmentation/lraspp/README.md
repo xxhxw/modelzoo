@@ -1,4 +1,5 @@
 # LRASPP(Searching for MobileNetV3)
+以下是该仓库作者写的使用方法
 
 ## 该项目主要是来自pytorch官方torchvision模块中的源码
 * https://github.com/pytorch/vision/tree/main/torchvision/models/segmentation
