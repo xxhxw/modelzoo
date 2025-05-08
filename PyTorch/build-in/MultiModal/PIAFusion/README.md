@@ -2,7 +2,8 @@
 
 ---
 
-### The re-implementation of Information Fusion 2022 PIAFusion paper idea
+###### 本文来源以下链接，略作修改：https://github.com/Cat2eacher/Image-Fusion/tree/main/PIAFusion_2022 <br>
+
 
 ![](figure/framework.png)
 
@@ -24,31 +25,9 @@ This code is based on [Linfeng Tang, “PIAFusion: A progressive infrared and vi
 
 ---
 
-## Idea 想法
-
-创新点在 损失函数 、跨模态融合模块 和 数据集 。
-
-1、基于光照感知来确定损失函数权重. 设计了一个照明感知子网络用来估计光照并计算照光照概率,利用光照概率构建光照感知损失来指导融合网络训练。
-光照感知网络本质上是一个分类器，它计算图像属于白天和夜间的概率。
-
-2、提出了一种跨模态差分感知融合（CMDAF）模块来补偿差分信息。
-
-
-3、发布了多光谱道路场景的数据集MSRS。
-
----
-
 ## Structure 文件结构
 
 ```shell
-├─ checkpoints_official               # 官方训练好的权重文件
-├─ data_train                            # 用于分类任务和融合任务的训练数据集
-├─ data_result                      # run_infer.py 的运行结果。使用训练好的权重对fusion_test_data内图像融合结果 
-├─ data_test                   # 用于测试的不同图片
-│  ├─ MSRS
-│  ├─ RoadScene
-│  └─ TNO
-│ 
 ├─ models                             # 模型文件
 │  ├─ common.py                       # 用到的一些公共模块
 │  ├─ cls_model.py                    # 光照感知子网络的网络模型
@@ -140,6 +119,18 @@ Image conversion and saving completed.
 ### 2 Trainng
 
 #### 从零开始训练
+##### 环境配置
+拉取镜像
+```bash
+docker pull jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:2.0.0-torch_sdaa2.0.0
+```
+起docker
+```bash
+docker run -itd --name=<name> --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 -p 22 -p 8080 -p 8888 --privileged --device=/dev/tcaicard20 --device=/dev/tcaicard21 --device=/dev/tcaicard22 --device=/dev/tcaicard23 --cap-add SYS_PTRACE --cap-add SYS_ADMIN --shm-size 300g jfrog.tecorigin.net/tecotp-docker/release/ubuntu22.04/x86_64/pytorch:2.0.0-torch_sdaa2.0.0 /bin/bash
+```
+更新软件栈：
+  ##### 需要注意的是由于旧版torch_sdaa对接口不支持会导致适配失败，需要更新到最新版本的torch_sdaa
+##### 训练
 * 打开configs.py对训练参数进行设置：
 * 参数说明：
 
@@ -200,30 +191,6 @@ Epoch [4/10]: 100%|██████████| 12615/12615 [01:22<00:00, 152
 100%|██████████| 1402/1402 [00:04<00:00, 321.59it/s]
 Valid set: Average loss: 0.0556, Accuracy: 5082/5607 (90.64%)
 
-Epoch [5/10]: 100%|██████████| 12615/12615 [01:22<00:00, 152.18it/s, learning_rate=0.001, loss_total=0.0191]
-100%|██████████| 1402/1402 [00:04<00:00, 319.19it/s]
-Valid set: Average loss: 0.0386, Accuracy: 5273/5607 (94.04%)
-
-Epoch [6/10]: 100%|██████████| 12615/12615 [01:23<00:00, 150.96it/s, learning_rate=0.001, loss_total=0.166]
-100%|██████████| 1402/1402 [00:04<00:00, 326.98it/s]
-Valid set: Average loss: 0.0471, Accuracy: 5221/5607 (93.12%)
-
-Epoch [7/10]: 100%|██████████| 12615/12615 [01:42<00:00, 123.35it/s, learning_rate=0.0008, loss_total=0.000965]
-100%|██████████| 1402/1402 [00:06<00:00, 222.34it/s]
-Valid set: Average loss: 0.0274, Accuracy: 5381/5607 (95.97%)
-
-Epoch [8/10]: 100%|██████████| 12615/12615 [01:33<00:00, 134.51it/s, learning_rate=0.0006, loss_total=0.0415]
-100%|██████████| 1402/1402 [00:04<00:00, 312.78it/s]
-Valid set: Average loss: 0.0244, Accuracy: 5406/5607 (96.42%)
-
-Epoch [9/10]: 100%|██████████| 12615/12615 [01:32<00:00, 136.64it/s, learning_rate=0.0004, loss_total=0.000607]
-100%|██████████| 1402/1402 [00:04<00:00, 296.09it/s]
-Valid set: Average loss: 0.0254, Accuracy: 5407/5607 (96.43%)
-
-Epoch [10/10]: 100%|██████████| 12615/12615 [01:28<00:00, 141.84it/s, learning_rate=0.0002, loss_total=0.000233]
-100%|██████████| 1402/1402 [00:04<00:00, 301.97it/s]
-Valid set: Average loss: 0.0223, Accuracy: 5429/5607 (96.83%)
-
 Finished Training
 训练耗时： 932.6015822887421
 Best prec: 0.968254
@@ -270,34 +237,6 @@ Finished Training
 训练耗时： 1551.5867385864258
 Best val loss: 3.558482
 ```
-
-### 3 Infer 推理
-* 设置完成参数后，运行**run_infer.py**即可开始推理。
-
-### 4 画中画效果
- - 论文中图片对比时画中画效果：
-  
-   ![image](Tools/multiregion.bmp)
-
-请修改utils/plotRegionZoom.py中如下关键信息使用；
-```shell
-    region_list = [
-        [137, 105, 167, 161],
-        [149, 171, 172, 212]
-    ]
-
-    zoom_bool = [True, True]
-
-    color_list = ['red', 'green']
-    line_list = [1, 1]
-    scale_list = [2, 2]
-    place_list = ['top left', 'upper right']
-    plotMultiRegion('39.bmp', region_list=region_list, line_width_list=line_list, color_list=color_list,
-                    place_list=place_list, scale_list=scale_list, save_path='multiregion.bmp', zoom_bool=zoom_bool)
-```
-
-其中region_list表示需要框选的区域的坐标信息列表；zoom_bool表示是否将框选的区域放大；place_list表示将放大的区域放置在原图中的何处；
-color_list表示框的颜色；line_list表示框的线条宽度；scale_list表示框选的区域放大的倍数；39.bmp替换成自己的图片路径；multiregion.bmp换成自己想要保存的路径；
 
 
 
