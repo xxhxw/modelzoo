@@ -157,6 +157,8 @@ Tecorign ModelZoo使用[TCAP\_DLLogger](https://github.com/Tecorigin/tcap_dllog
 
 * `test.sh`文件：对`loss.py`和`run_demo.py`的执行进行封装，快速运行模型和生成评估数据，便于模型验收。
 
+* 相关log文件：需提交复现的sdaa.log及cuda.log，便于模型验收与复现。
+
 
 关于`run_scripts`的详细信息，参考以下示例：https://github.com/Arrmsgt/modelzoo/tree/main/PyTorch/contrib/Classification/Demo/run_scripts
     
@@ -205,9 +207,9 @@ Readme文件用于介绍模型的功能、环境依赖、数据集、使用方�
 * 启动训练的方法：包括进入对应启动脚本的目录和启动的方法。
   
 * 训练结果: 使用表格提供简单的参数介绍，和对应的精度和性能结果。
-  
 
-Tecorign ModelZoo提供了[README](https://github.com/Tecorigin/modelzoo/blob/acba72124121dda6acbfd485101a0d37bcbb32dc/PyTorch/contrib/Classification/Demo/README.md)的Demo文件，您可以使用该Demo文件作为模板，将内容更换为提交模型相关的内容。
+
+Tecorign ModelZoo提供了[README](https://github.com/Arrmsgt/modelzoo/blob/main/PyTorch/contrib/Classification/Demo/README.md)的Demo文件，您可以使用该Demo文件作为模板，将内容更换为提交模型相关的内容。
 
 关于Readme的详细内容，参考以下示例：
-[https://github.com/Tecorigin/modelzoo/blob/acba72124121dda6acbfd485101a0d37bcbb32dc/PyTorch/contrib/Classification/Demo/README.md](https://github.com/Tecorigin/modelzoo/blob/acba72124121dda6acbfd485101a0d37bcbb32dc/PyTorch/contrib/Classification/Demo/README.md)。
+[https://github.com/Arrmsgt/modelzoo/blob/main/PyTorch/contrib/Classification/Demo/README.md](https://github.com/Arrmsgt/modelzoo/blob/main/PyTorch/contrib/Classification/Demo/README.md)。

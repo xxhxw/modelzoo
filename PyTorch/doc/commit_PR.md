@@ -84,4 +84,4 @@
      * 如果为短训，请提供loss曲线图和最终的loss结果。
    * Readme自测结果：确定Readme已经通过自测，非开发者可以通过Readme运行模型训练。
 
-PR的具体内容，请参考以下示例：[https://github.com/Tecorigin/modelzoo/pull/4](https://github.com/Tecorigin/modelzoo/pull/4)    
+PR的具体内容，请参考以下示例：[https://github.com/Tecorigin/modelzoo/pull/9](https://github.com/Tecorigin/modelzoo/pull/9)    
