@@ -4,8 +4,6 @@ echo $script_path
 
 #安装依赖
 pip3 install -r ../requirements.txt
-# 数据集路径,保持默认统一根目录即可
-data_path="/data/imagnet"
 # # 参数校验
 # for para in $*
 # do
@@ -32,4 +30,4 @@ python run_Dehamer.py --dataset-name NH \
   --cuda | tee sdaa.log
 
 #生成loss对比图
-# python loss.py --sdaa-log sdaa.log --cuda-log cuda.log
+python loss.py --sdaa-log sdaa.log --cuda-log cuda.log
