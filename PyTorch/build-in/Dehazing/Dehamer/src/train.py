@@ -42,10 +42,7 @@ def parse_args():
  
     return parser.parse_args()
 
- 
 if __name__ == '__main__':    
-    
-    
     # Parse training parameters  
     params = parse_args()   
     # import pdb;

@@ -13,6 +13,7 @@ from utils import *
 import torchvision
 import os
 import json
+from torch_sdaa.utils import cuda_migrate
 
 class dehamer(object):
     """Implementation of dehamer from Guo et al. (2022)."""
@@ -206,9 +207,9 @@ class dehamer(object):
                 # Denoise image
                 # source_dehazed = self.model(source)
                 # 使用 autocast 进行前向传播
-                with autocast():
-                    source_dehazed = self.model(source)
-                    loss = self.loss(source_dehazed, target)
+                # with autocast():
+                source_dehazed = self.model(source)
+                loss = self.loss(source_dehazed, target)
                 #loss = self.loss(source_dehazed, target)
                 loss_meter.update(loss.item())
 
@@ -222,9 +223,9 @@ class dehamer(object):
 
                 clip_grad_norm_(self.model.parameters(), max_norm=10)
 
-                # self.optim.step()
-                self.scaler.step(self.optim)
-                self.scaler.update()
+                self.optim.step()
+                # self.scaler.step(self.optim)
+                # self.scaler.update()
                 
                 # Report/update statistics
                 time_meter.update(time_elapsed_since(batch_start)[1])
