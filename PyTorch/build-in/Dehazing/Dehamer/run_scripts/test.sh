@@ -22,9 +22,9 @@ python run_Dehamer.py --dataset-name NH \
   --ckpt_save_path ./ckpts \
   --ckpt_overwrite \
   --nb_epochs 2  \
-  --batch_size 1 \
-  --train_size 32 32 \
-  --valid_size 32 32 \
+  --batch_size 2 \
+  --train_size 192 288 \
+  --valid_size 192 288 \
   --loss l1 \
   --plot_stats \
   --cuda | tee sdaa.log
