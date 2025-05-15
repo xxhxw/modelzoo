@@ -9,126 +9,15 @@ This repository contains the official implementation of the following paper:
 ## Overview
 ![overall_structure](./figs/pipeline.jpg)
 Overview structure of our method. Our method consists of five key modules: a transmission-aware 3D position embedding module, a Transformer module, a CNN encoder module, a feature modulation module, and a CNN decoder module.
-## Environment
-
-1. Clone Repo
-
-   ```bash
-   git clone <code_link>
-   cd Dehamer-main/
-   ```
-
-2. Create Conda Environment and Install Dependencies
-
-   ```bash
-   conda env create -f environment.yaml
-   conda activate dehamer
-   ```
-
-
-## Prepare pretrained models and quick test
-Before performing the following steps, please download our pretrained model first.
-
- **Download Links:** [[Google Drive](https://drive.google.com/drive/folders/1YZnKreDfqbs_GHB76Ko4qtifpPWPbCwU?usp=sharing)] [[Baidu Disk (password: 1tap)](https://pan.baidu.com/s/1i6A_Vjq-WUSLUJYMyYvlew)]
-
-Then, unzip the file and place the models to `ckpts/<dataset_name>` directory, separately.
-
-The directory structure will be arranged as:
+## 准备
+### 数据集
+ 本次适配采用的训练数据是NH-HAZE去雾数据集
+ 下载地址：
+ [Baidu Cloud](https://pan.baidu.com/s/1RGaVJ5kbd-cokE8ZAF_THw?pwd=801y)
+ [Google drive](https://drive.google.com/file/d/1qPYGkCfVgn1Ami7ksf0DmKeKsoHVnm8i/view?usp=sharing)
+数据集格式如下：
 ```
-ckpts
-   |- dense
-      |- PSNR1662_SSIM05602.pt  
-   |- NH
-      |- PSNR2066_SSIM06844.pt
-   |- indoor
-      |- PSNR3663_ssim09881.pt
-   |- outdoor
-      |- PSNR3518_SSIM09860.pt
-```
-
-We provide some classic test images in the [`classic_test_image`](./data/classic_test_image/) directory.
-
-Run the following command to process them:
-```shell
-
-CUDA_VISIBLE_DEVICES=X python src/test_PSNR.py --dataset-name our_test  
-
-```
-The dehazed images will be saved in the `results/` directory.
-
-You can also run the following command to process your own images:
-```
-CUDA_VISIBLE_DEVICES=X python src/test_PSNR.py \
-  --dataset-name our_test -t path/to/your/test/folder   
-```
-
-## Prepare dataset for training and evaluation
-<table>
-<thead>
-  <tr>
-    <th>Dataset</th>
-    <th>OTS-Train</th>
-    <th>ITS-Train</th>
-    <th>Dense-Haze</th>
-    <th>NH-HAZE</th>
-    <th>SOTS-Test</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td>Details</td>
-    <td>about 45G</td>
-    <td>about 4.5G</td>
-    <td>about 250M</td>
-    <td>about 315M</td>
-    <td>about 415M</td>   
-  <tr>
-    <td>Google drive</td>
-    <td> <a href="https://drive.google.com/drive/folders/1i_tW1axmOjOy1InX1o3iS1nLnJ8TND7f?usp=sharing">Google drive</a></td>
-    <td> <a href="https://drive.google.com/file/d/1lE6FyHS-1MHoV6iM_s7phgf3Z3XJeC9E/view?usp=share_link">Google drive</a> </td>
-    <td> <a href="https://drive.google.com/file/d/1OOyeu2pDM_OuE84qbV3eBy4pfP4xorVq/view?usp=sharing">Google drive</a> </td>
-    <td> <a href="https://drive.google.com/file/d/1qPYGkCfVgn1Ami7ksf0DmKeKsoHVnm8i/view?usp=sharing">Google drive</a> </td>
-    <td> <a href="https://drive.google.com/file/d/1IyZPih5BXB9ffgKneXf_FVpLus6Egmfn/view?usp=sharing">Google drive</a></td>
-  </tr>
-  <tr>
-    <td>Baidu Cloud</td>
-    <td> Not available </td>
-    <td> <a href="https://pan.baidu.com/s/1rkIjRjRROr80R5JARTSRYA?pwd=vorb">Baidu Cloud</a></td>
-    <td> <a href="https://pan.baidu.com/s/12sQIJQpBYq6EApLGKMurlg?pwd=ixen">Baidu Cloud</a> </td>
-    <td> <a href="https://pan.baidu.com/s/1RGaVJ5kbd-cokE8ZAF_THw?pwd=801y">Baidu Cloud</a> </td>
-    <td> <a href="https://pan.baidu.com/s/1T2UvbHIYabZ510-Df5NUdg?pwd=i02g">Baidu Cloud</a> </td>
-  </tr>
-</tbody>
-</table>
-
-The train and valid split files are provided in `data/<dataset_name>`.
-
-The `data` directory structure will be arranged as: (**Note**: please check it carefully)
-```
-data
-   |- classic_test_image
-      |- input
-         |- canyon.png
-         |- canyon1.png
-      |- val_list.txt
-   |-Dense-Haze
-      |- train_dense
-         |- haze
-            |- 01_hazy.png 
-            |- 02_hazy.png
-         |- clear_images
-            |- 01_GT.png 
-            |- 02_GT.png
-         |- trainlist.txt
-      |- valid_dense
-         |- input 
-            |- 51_hazy.png 
-            |- 52_hazy.png
-         |- gt
-            |- 51_GT.png 
-            |- 52_GT.png
-         |- val_list.txt
-   |-NH-Haze
+ |-NH-Haze
       |- train_NH
          |- haze
             |- 01_hazy.png 
@@ -145,103 +34,65 @@ data
             |- 51_GT.png 
             |- 52_GT.png
          |- val_list.txt
-   |-ITS
-      |- train_indoor
-         |- haze
-            |- 1_1_0.90179.png 
-            |- 2_1_0.99082.png
-         |- clear_images
-            |- 1.png 
-            |- 2.png
-         |- trainlist.txt
-      |- valid_indoor
-         |- input
-            |- 1400_1.png 
-            |- 1401_1.png
-         |- gt
-            |- 1400.png 
-            |- 1401.png
-         |- val_list.txt
-   |-OTS   
-      |- train_outdoor
-         |- haze
-            |- 0005_0.8_0.04.jpg 
-            |- 0008_0.8_0.04.jpg
-         |- clear_images
-            |- 0005.jpg 
-            |- 0008.jpg
-         |- trainlist.txt
-      |- valid_outdoor
-         |- input
-            |- 0001_0.8_0.2.jpg 
-            |- 0002_0.8_0.08.jpg
-         |- gt
-            |- 0001.png 
-            |- 0002.png
-         |- val_list.txt
 ```
-
-
-
-## Training
-
-See `python3 src/train.py --h` for list of optional arguments, or `train.sh` for examples.
-
-An example of NH-HAZE dataset.
+### 安装环境
+提供了Dockerfile，下面使用Dockerfile安装
+1. 构建Dockerfile，
 ```
-CUDA_VISIBLE_DEVICES=0,1 python src/train.py \
-  --dataset-name NH \
-  --train-dir ./data/train_NH/ \
-  --valid-dir ./data/valid_NH/ \
-  --ckpt-save-path ../ckpts \
-  --ckpt-overwrite \
-  --nb-epochs 5000 \
-  --batch-size 2\
-  --train-size 800 1200  \
-  --valid-size 800 1200 \
-  --loss l1 \
-  --plot-stats \
-  --cuda   
+docker build -t dehamer:latest ${your_path}/Dehamer/
 ```
-
-## Testing
-See `python3 test_PSNR.py --h` for list of optional arguments, or `test.sh` for an example.
-
-An example of NH-HAZE dataset.
+2. 运行并进入容器
 ```
-CUDA_VISIBLE_DEVICES=1 python src/test_PSNR.py \
-  --dataset-name NH   
+docker run -it --name dehamer --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 --privileged --shm-size=300g dehamer:latest
 ```
+## 训练
+使用run_scripts目录下test.sh脚本一键安装环境训练，具体训练参数可以在脚本中查看
+```
+bash test.sh
+```
+训练输出：
+```
+Train time: 0:00:08 | Valid time: 0:00:05 | Valid loss: 0.14306 | Avg PSNR: 14.86 dB
+Saving checkpoint to: ./ckpts/NH/dehamer-NH.pt
 
-## Mindspore Version
-
-We also provide the mindspore code at https://github.com/Dragoniss/mindspore-phase2-Dehamer.
-
-## Results
-### Quantitative comparisons on synthetic dehazing datasets: SOTS-Indoor and SOTS-Outdoor.
-![quantitative_results](./figs/indoor_outdoor.jpg)
-### Quantitative comparisons on real dehazing datasets: Dense-Haze and NH-HAZE.
-![quantitative_results](./figs/dense_NH.jpg)
-The results of our dehamer on benchmarks can also be download from [<a href="https://drive.google.com/drive/folders/1TWMFE2x6kVU2eOVqRPSjmyaejWVA8sqp?usp=sharing">Google drive</a>] and [<a href="https://pan.baidu.com/s/1jBL6NNadkSvbVhQj1TE3Ag">Baidu Disk (password: 13e2)</a>].
-
-
-## Citation
-
-   If you find our repo useful for your research, please consider citing our paper:
-
-   ```bibtex
-   @inproceedings{guo2022dehamer,
-     author = {Chun-Le Guo, Qixin Yan, Saeed Anwar, Runmin Cong, Wenqi Ren, Chongyi Li},
-     title = {Image Dehazing Transformer with Transmission-Aware 3D Position Embedding},
-     booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-     year={2022}
-   }
-   ```
-## Contact
-
-If you have any question, please feel free to contact us via `guochunle@nankai.edu.com` or `lichongyi25@gmail.com`.
-
-## Acknowledgments
-
-This code is based on [Swin-Transformer
-](https://github.com/microsoft/Swin-Transformer), [Noise2noise](https://github.com/joeylitalien/noise2noise-pytorch), and [GridDehazeNet](https://github.com/proteus1991/GridDehazeNet).
+EPOCH 22 / 50
+Batch  1 [=>                      ] Train loss: 0.00000
+Batch  2 [=>                      ] Train loss: 0.14641                                                                            
+Batch  2 / 50 | Avg loss: 0.19057 | Avg train time / batch: 74 ms
+Batch  3 [=>                      ] Train loss: 0.00000                                                                             
+Batch  3 / 50 | Avg loss: 0.09584 | Avg train time / batch: 56 ms
+Batch  4 [=>                      ] Train loss: 0.00000                                                                             
+Batch  4 / 50 | Avg loss: 0.06765 | Avg train time / batch: 64 ms
+Batch  5 [=>                      ] Train loss: 0.00000                                                                               
+Batch  5 / 50 | Avg loss: 0.13795 | Avg train time / batch: 66 ms
+Batch  6 [=>                      ] Train loss: 0.00000                                                                               
+Batch  6 / 50 | Avg loss: 0.11026 | Avg train time / batch: 59 ms
+Batch  7 [=>                      ] Train loss: 0.00000                                                                            
+Batch  7 / 50 | Avg loss: 0.14676 | Avg train time / batch: 59 ms
+Batch  8 [=>                      ] Train loss: 0.00000                                                                               
+Batch  8 / 50 | Avg loss: 0.17055 | Avg train time / batch: 67 ms
+Batch  9 [=>                      ] Train loss: 0.00000                                                                              
+Batch  9 / 50 | Avg loss: 0.06595 | Avg train time / batch: 58 ms
+Batch 10 [=>                      ] Train loss: 0.00000                                                                              
+Batch 10 / 50 | Avg loss: 0.14240 | Avg train time / batch: 66 ms
+Batch 11 [=>                      ] Train loss: 0.00000                                                                            
+Batch 11 / 50 | Avg loss: 0.24396 | Avg train time / batch: 70 ms
+Batch 12 [=>                      ] Train loss: 0.00000                                                                               
+Batch 12 / 50 | Avg loss: 0.06341 | Avg train time / batch: 76 ms
+Batch 13 [=>                      ] Train loss: 0.00000                                                                                
+Batch 13 / 50 | Avg loss: 0.10660 | Avg train time / batch: 70 ms
+Batch 14 [=>                      ] Train loss: 0.00000                                                                               
+Batch 14 / 50 | Avg loss: 0.16737 | Avg train time / batch: 64 ms
+Batch 15 [=>                      ] Train loss: 0.00000                                                                                
+Batch 15 / 50 | Avg loss: 0.06316 | Avg train time / batch: 63 ms
+Batch 16 [=>                      ] Train loss: 0.00000                                                                                
+Batch 16 / 50 | Avg loss: 0.11583 | Avg train time / batch: 56 ms
+Batch 17 [=>                      ] Train loss: 0.00000                                                                               
+Batch 17 / 50 | Avg loss: 0.09643 | Avg train time / batch: 57 ms
+Batch 18 [=>                      ] Train loss: 0.00000                                                                               
+Batch 18 / 50 | Avg loss: 0.08434 | Avg train time / batch: 58 ms
+Batch 19 [=>                      ] Train loss: 0.00000                                                                                
+Batch 19 / 50 | Avg loss: 0.21684 | Avg train time / batch: 63 ms
+```
+## 训练结果
+![image](https://github.com/user-attachments/assets/767d859e-2d60-443d-8cbe-1fa9459c7488)
