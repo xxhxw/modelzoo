@@ -83,11 +83,30 @@ This code is based on [Hui Li, Xiao-Jun Wu*, Josef Kittler, "RFN-Nest: An end-to
 
 ## Usage 使用说明
 
+
+
+### 准备
+#### 环境安装
+提供了Dockerfile，下面使用Dockerfile安装
+1. 构建Dockerfile，
+```
+docker build -t densefuse:latest ${your_path}/DenseFuse/
+```
+2. 运行并进入容器
+```
+docker run -it --name densefuse --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 --privileged --shm-size=300g densefuse:latest
+```
+#### 数据集
+本次适配使用COCO2017数据集，下载地址：https://cocodataset.org/#home
+或者在共享目录/mnt_qne00/dataset/coco/train2017/
+
+### Trainng
+
 #### 从零开始训练
 
-* 打开configs.py对训练参数进行设置：
-* 参数说明：
-
+* 参数说明：参考README.md, 需要求改参数可以在test.sh中修改
+                                                                           |
+* 设置完成参数后，执行**bash run_scripts/test.sh**即可开始训练：
 | 参数名           | 说明                                                                              |
 |---------------|---------------------------------------------------------------------------------|
 | RFN           | 判断训练阶段，if RFN=True，进入第二阶段训练；否则是训练autoencoder                                    |
@@ -103,8 +122,6 @@ This code is based on [Hui Li, Xiao-Jun Wu*, Josef Kittler, "RFN-Nest: An end-to
 | num_workers   | 加载数据集时使用的CPU工作进程数量，为0表示仅使用主进程，（在Win10下建议设为0，否则可能报错。Win11下可以根据你的CPU线程数量进行设置来加速数据集加载） |
 | learning_rate | 训练初始学习率                                                                             |
 | num_epochs    | 训练轮数                                                                                |
-
-* 设置完成参数后，运行**run_train.py**即可开始训练：
 
 ```python
 def set_args():
@@ -173,156 +190,6 @@ Finished Training
 训练耗时：22354.39秒
 Best loss: 0.002613
 
-
-rfn training by KAIST:
-==================模型超参数==================
-----------数据集相关参数----------
-image_path_autoencoder: ../dataset/COCO_train2014
-image_path_rfn: ../dataset/KAIST
-gray_images: True
-train_num: 95000
-----------训练相关参数----------
-RFN: True
-deepsupervision: False
-resume_nestfuse: runs/train_autoencoder/checkpoints/epoch003-loss0.003.pth
-resume_rfn: None
-device: cuda
-batch_size: 4
-num_workers: 0
-num_epochs: 4
-learning rate : 0.0001
-==================模型超参数==================
-设备就绪...
-Tensorboard 构建完成，进入路径：./runs\train_01-24_21-32\logs_Gray_epoch=4
-然后使用该指令查看训练过程：tensorboard --logdir=./
------fpn----- 阶段 训练数据载入完成...
-测试数据载入完成...
-Resuming, initializing auto-encoder using weight from runs/train_autoencoder/checkpoints/epoch003-loss0.003.pth.
-加载AutoEncoder部分权重完成。
-initialize network with normal type
-初始化 RFN 部分权重完成。
-Epoch [1/4]: 100%|██████████| 23750/23750 [3:02:30<00:00,  2.17it/s, detail_loss=1.93e-5, feature_loss=0.0392, learning_rate=0.0001]
-Epoch [2/4]: 100%|██████████| 23750/23750 [3:00:48<00:00,  2.19it/s, detail_loss=7.15e-6, feature_loss=0.0414, learning_rate=9e-5]
-Epoch [3/4]: 100%|██████████| 23750/23750 [2:58:49<00:00,  2.21it/s, detail_loss=6.91e-6, feature_loss=0.0206, learning_rate=8.1e-5]
-Epoch [4/4]: 100%|██████████| 23750/23750 [2:58:48<00:00,  2.21it/s, detail_loss=9.3e-6, feature_loss=0.0149, learning_rate=7.29e-5]
-Finished Training
-训练耗时：43258.09秒
-Best loss: 0.044001
-```
-
-
-```
-autoencoder training by COCO2017:
-==================模型超参数==================
-----------数据集相关参数----------
-image_path_autoencoder: /data/public/coco/train2017
-image_path_rfn: /data/public/LLVIP
-gray_images: True
-train_num: 10000
-----------训练相关参数----------
-RFN: False
-deepsupervision: False
-resume_nestfuse: None
-resume_rfn: None
-device: cuda
-batch_size: 4
-num_workers: 10
-num_epochs: 10
-learning rate : 0.0001
-==================模型超参数==================
-设备就绪...
-Tensorboard 构建完成，进入路径：./runs/train_04-11_12-52/logs_Gray_epoch=10
-然后使用该指令查看训练过程：tensorboard --logdir=./
-autoencoder 阶段训练数据载入完成...
-测试数据载入完成...
-initialize network with normal type
-网络模型及优化器构建完成...
-Epoch [1/10]: 100%|█| 2500/2500 [21:07<00:00,  1.97it/s, learning_rate=0.0001, pixel_loss=0.00346, ssim_los
-Epoch [2/10]: 100%|█| 2500/2500 [20:43<00:00,  2.01it/s, learning_rate=9e-5, pixel_loss=0.2, ssim_loss=0.52
-Epoch [3/10]: 100%|█| 2500/2500 [20:11<00:00,  2.06it/s, learning_rate=8.1e-5, pixel_loss=0.263, ssim_loss=
-Epoch [4/10]: 100%|█| 2500/2500 [20:07<00:00,  2.07it/s, learning_rate=7.29e-5, pixel_loss=0.255, ssim_loss
-Epoch [5/10]: 100%|█| 2500/2500 [20:03<00:00,  2.08it/s, learning_rate=6.56e-5, pixel_loss=0.269, ssim_loss
-Epoch [6/10]: 100%|█| 2500/2500 [20:03<00:00,  2.08it/s, learning_rate=5.9e-5, pixel_loss=0.322, ssim_loss=
-Epoch [7/10]: 100%|█| 2500/2500 [20:26<00:00,  2.04it/s, learning_rate=5.31e-5, pixel_loss=0.00136, ssim_lo
-Epoch [8/10]: 100%|█| 2500/2500 [20:35<00:00,  2.02it/s, learning_rate=4.78e-5, pixel_loss=0.000307, ssim_l
-Epoch [9/10]: 100%|█| 2500/2500 [20:34<00:00,  2.03it/s, learning_rate=4.3e-5, pixel_loss=0.000134, ssim_lo
-Epoch [10/10]: 100%|█| 2500/2500 [20:33<00:00,  2.03it/s, learning_rate=3.87e-5, pixel_loss=0.000243, ssim_
-Finished Training
-训练耗时： 12278.722757577896
-Best val loss: 0.086511
-
-
-rfn training by LLVIP:
-==================模型超参数==================
-----------数据集相关参数----------
-image_path_autoencoder: /data/public/coco/train2017
-image_path_rfn: /data/public/LLVIP
-gray_images: True
-train_num: 10000
-----------训练相关参数----------
-RFN: True
-deepsupervision: False
-resume_nestfuse: /model/ziqi/Image_Fusion/RFN-Nest/runs/train_04-11_12-52/checkpoints/epoch009-loss0.087.pth
-resume_rfn: None
-device: cuda
-batch_size: 2
-num_workers: 10
-num_epochs: 10
-learning rate : 0.0001
-==================模型超参数==================
-设备就绪...
-Tensorboard 构建完成，进入路径：./runs/train_04-11_16-25/logs_Gray_epoch=10
-然后使用该指令查看训练过程：tensorboard --logdir=./
-fpn 阶段训练数据载入完成...
-测试数据载入完成...
-Resuming, initializing auto-encoder using weight from /model/ziqi/Image_Fusion/RFN-Nest/runs/train_04-11_12-52/checkpoints/epoch009-loss0.087.pth.
-Loading weights into state dict...
-initialize network with normal type
-网络模型及优化器构建完成...
-Epoch [1/10]: 100%|█| 5000/5000 [30:31<00:00,  2.73it/s, detail_loss=0.43, feature_loss=0.00199, learning_ra
-Epoch [2/10]: 100%|█| 5000/5000 [30:28<00:00,  2.73it/s, detail_loss=0.495, feature_loss=0.00117, learning_r
-Epoch [3/10]: 100%|█| 5000/5000 [30:24<00:00,  2.74it/s, detail_loss=0.468, feature_loss=0.000828, learning_
-Epoch [4/10]: 100%|█| 5000/5000 [30:18<00:00,  2.75it/s, detail_loss=0.501, feature_loss=0.00103, learning_r
-Epoch [5/10]: 100%|█| 5000/5000 [30:17<00:00,  2.75it/s, detail_loss=0.441, feature_loss=0.000863, learning_
-Epoch [6/10]: 100%|█| 5000/5000 [30:19<00:00,  2.75it/s, detail_loss=0.451, feature_loss=0.000704, learning_
-Epoch [7/10]: 100%|█| 5000/5000 [30:21<00:00,  2.75it/s, detail_loss=0.531, feature_loss=0.000516, learning_
-Epoch [8/10]: 100%|█| 5000/5000 [30:25<00:00,  2.74it/s, detail_loss=0.543, feature_loss=0.000658, learning_
-Epoch [9/10]: 100%|█| 5000/5000 [30:15<00:00,  2.75it/s, detail_loss=0.46, feature_loss=0.000648, learning_r
-Epoch [10/10]: 100%|█| 5000/5000 [30:16<00:00,  2.75it/s, detail_loss=0.5, feature_loss=0.000879, learning_r
-Finished Training
-训练耗时： 18244.081510782242
-Best val loss: 0.000928
-```
-
-* Tensorboard查看训练细节：
-  * **logs**文件夹下保存Tensorboard文件
-  * 进入对于文件夹后使用该指令查看训练过程：`tensorboard --logdir=./`
-  * 在浏览器打开生成的链接即可查看训练细节
-
-#### 使用我提供的权重继续训练
-
-* 打开args_fusion.py对训练参数进行设置
-* 首先确定训练模式（Gray or RGB）
-* 修改**resume_path**的默认值为已经训练过的权重文件路径
-
-* 运行**run_train.py**即可运行
-
-
-
-### Fuse Image
-
-* 打开**run_infer.py**文件，调整**defaults**参数
-  * 确定融合模式（Gray or RGB）
-  * 确定原图像路径和权重路径
-  * 确定保存路径
-* 运行**run_infer.py**
-
-!! 注意：
-先使用COCO2014和KAIST数据集训练，发现效果很差（主要是KAIST效果差）
-
-所有有了用COCO2017和LLVIP数据集训练的版本，
-
-在调用模型权重的时候需要注意。
 
 
 
