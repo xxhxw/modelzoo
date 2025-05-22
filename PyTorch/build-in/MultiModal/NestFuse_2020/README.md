@@ -68,12 +68,28 @@ In our fusion strategy, we focus on two types of features: spatial attention mod
 
 ## Usage 使用说明
 
+### 准备
+#### 环境安装
+提供了Dockerfile，下面使用Dockerfile安装
+1. 构建Dockerfile，
+```
+docker build -t densefuse:latest ${your_path}/DenseFuse/
+```
+2. 运行并进入容器
+```
+docker run -it --name densefuse --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 --privileged --shm-size=300g densefuse:latest
+```
+#### 数据集
+本次适配使用COCO2017数据集，下载地址：https://cocodataset.org/#home
+或者在共享目录/mnt_qne00/dataset/coco/train2017/
+
 ### Trainng
 
 #### 从零开始训练
 
-* 打开configs.py对训练参数进行设置：
-* 参数说明：
+* 参数说明：参考README.md, 需要求改参数可以在test.sh中修改
+                                                                          
+* 设置完成参数后，执行**bash run_scripts/test.sh**即可开始训练：
 
 | 参数名              | 说明                                                                              |
 |------------------|---------------------------------------------------------------------------------|
@@ -86,8 +102,6 @@ In our fusion strategy, we focus on two types of features: spatial attention mod
 | num_workers      | 加载数据集时使用的CPU工作进程数量，为0表示仅使用主进程，（在Win10下建议设为0，否则可能报错。Win11下可以根据你的CPU线程数量进行设置来加速数据集加载） |
 | learning_rate    | 训练初始学习率                                                                            |
 | num_epochs       | 训练轮数                                                                               |
-
-* 设置完成参数后，运行**run_train.py**即可开始训练：
 
 ```python
     # 数据集相关参数
@@ -143,40 +157,6 @@ Best loss: 0.002408
   * **logs**文件夹下保存Tensorboard文件
   * 进入对于文件夹后使用该指令查看训练过程：`tensorboard --logdir=./`
   * 在浏览器打开生成的链接即可查看训练细节
-
-#### 使用我提供的权重继续训练
-
-* 打开args_fusion.py对训练参数进行设置
-* 首先确定训练模式（Gray or RGB）
-* 修改**resume_path**的默认值为已经训练过的权重文件路径
-
-* 运行**run_train.py**即可运行
-
-
-
-### Fuse Image
-
-* 打开**run_infer.py**文件，调整**configs**参数
-  * 确定融合模式（Gray or RGB）
-  * 确定原图像路径和权重路径
-  * 确定保存路径
-* 运行**run_infer.py**
-* 你可以在运行窗口看到如下信息：
-
-```shell
-runs/train_01-18_17-36/checkpoints/epoch003-loss0.002.pth model loaded.
-载入数据...
-开始融合...
-Processing: 100%|██████████| 10323/10323 [1:11:52<00:00,  2.39it/s]
-Processing completed:10323/10323 images successfully fused
-```
-
-！需要注意的是，在作者自己的数据集上，超过1k张图片显存拉满然后进度条不动了。
-所以在run_infer.py文件中有一个多线程处理的补充部分，多线程融合图像可以完成。
-
-
-
-
 
 
 
