@@ -1,3 +1,4 @@
+git+https://gitee.com/sunny8654/dllogger.git
 matplotlib
 scipy
 timm
