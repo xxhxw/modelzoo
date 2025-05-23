@@ -32,11 +32,11 @@
   提供了Dockerfile，下面使用Dockerfile安装
 1. 构建Dockerfile，
 ```
-docker build -t densefuse:latest ${your_path}/DenseFuse/
+docker build -t densefuse:latest ${your_path}/aspp-v2/
 ```
 2. 运行并进入容器
 ```
-docker run -it --name densefuse --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 --privileged --shm-size=300g densefuse:latest
+docker run -it --name aspp-v2 --net=host -v /mnt/:/mnt -v /mnt_qne00/:/mnt_qne00 --privileged --shm-size=300g aspp-v2:latest
 ```
 * 确保提前准备好数据集
 * 若要使用单GPU或者CPU训练，直接使用run_scrpts/test.sh一键训练
