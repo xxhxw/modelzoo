@@ -1,0 +1,1 @@
+SDAA_VISIBLE_DEVICES=8,9,10,11 TORCH_SDAA_AUTOLOAD=cuda_migrate python main.py --mode train --data_path /data/application/zhaohr/shipei/dataset/Market-1501-v15.09.15 2>&1 | tee sdaa.log
