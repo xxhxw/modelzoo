@@ -1,0 +1,12 @@
+matplotlib
+tqdm
+scipy
+bcolz-zipline
+# bcolz==1.2.1
+easydict
+opencv_python
+Pillow
+mxnet
+scikit_learn
+tensorboardX
+
